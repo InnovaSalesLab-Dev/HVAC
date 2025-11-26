@@ -1,0 +1,1211 @@
+# 🧪 Valley View HVAC - AI Voice Agent Testing Protocol
+
+**Date:** _______________  
+**Tester Name:** _______________  
+**Phone Number Used for Testing:** _______________
+
+---
+
+## 📋 Pre-Testing Checklist
+
+Before starting, verify these are set up:
+
+- [ ] GoHighLevel account is active
+- [ ] Contact Created workflow is Published (not Draft)
+- [ ] Form is created and published
+- [ ] Test phone number is available
+- [ ] Vapi dashboard access (optional, for monitoring)
+
+> ⚠️ **IMPORTANT TESTING INSTRUCTIONS:**
+> - Use your **REAL/ORIGINAL phone number** for testing (not a fake number)
+> - This ensures you receive actual calls and SMS messages
+> - You can use your personal cell phone number
+> - Make sure your phone is available to answer calls during testing
+> - For SMS testing, ensure your phone can receive text messages
+
+---
+
+## 📞 Test 1: Inbound Call - Basic Service Request
+
+**SCENARIO:** Customer calls your main number for HVAC service
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+> 💡 **IMPORTANT:** Use your REAL phone number when providing contact information during the call. This ensures you receive SMS confirmations and can verify the complete flow.
+
+### Test Questions:
+
+1. Call the number and listen to the greeting. Note what the AI says.
+
+2. Say: "I need my AC fixed"
+
+3. When asked for details, say: "It's not cooling at all, stopped working yesterday"
+
+4. When asked for your name, provide your real first and last name
+
+5. When asked for your phone number, provide your real phone number
+
+6. Listen carefully - does the AI repeat your full name and phone number back to you for confirmation?
+
+7. When asked for your address, say: "123 Main Street, Salem, Oregon 97301"
+
+8. Ask: "When can you come out?"
+
+9. Review the appointment times offered - are they only available slots (not already booked)?
+
+10. Select an appointment time that works for you
+
+11. Confirm the booking
+
+### Edge Cases to Test:
+
+1. Provide an invalid phone number format (e.g., "123") - how does the AI handle it?
+
+2. Provide a name with special characters (e.g., "Mary-Jane O'Brien") - does the AI confirm it correctly?
+
+3. Provide a very long address - does the AI capture it completely?
+
+4. If the calendar is fully booked, what does the AI offer as alternatives?
+
+### Expected Behavior:
+
+- ✅ AI greets correctly with company name
+- ✅ AI asks clarifying questions about the issue
+- ✅ AI offers to schedule a diagnostic appointment
+- ✅ AI collects: First Name, Last Name, Phone Number
+- ✅ AI repeats name and phone back for confirmation (CRITICAL)
+- ✅ AI checks calendar availability
+- ✅ AI offers available appointment slots (only available, not booked)
+- ✅ AI books appointment if you accept
+- ✅ AI sends SMS confirmation after booking
+- ✅ Handles invalid inputs gracefully
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📞 Test 2: Inbound Call - Pricing Question (No Pricing Unless Asked)
+
+**SCENARIO:** Customer calls asking about installation, but doesn't ask for price
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+> 💡 **IMPORTANT:** Use your REAL phone number when providing contact information.
+
+### Test Questions:
+
+1. Say: "I want to replace my old AC system"
+   - Does the AI mention pricing automatically, or does it recommend an on-site assessment first?
+
+2. Ask: "What's involved in that?"
+
+3. Ask: "How much does something like that usually cost?"
+   - Does the AI push for an on-site assessment or give a price?
+
+4. Say: "Sure, let's schedule it"
+
+5. Provide your name, phone number, and address when asked
+
+### Edge Cases to Test:
+
+1. Try multiple times to get a price:
+   - "Can you just give me a ballpark?"
+   - "What's the average cost?"
+   - "Just a rough estimate?"
+   - How does the AI respond each time?
+
+2. Express frustration: "Why can't you just tell me a price?"
+   - Does the AI remain professional and explain the reasoning?
+
+### Expected Behavior:
+
+- ✅ AI does **NOT** mention pricing automatically
+- ✅ AI recommends on-site assessment first
+- ✅ AI says: "I'd be happy to help with that. We do on-site assessments to give you an accurate quote. Would you like to schedule an estimate appointment?"
+- ✅ AI consistently pushes back on phone quote requests
+- ✅ AI remains professional even when customer pushes for price
+- ✅ AI then proceeds to collect information and book appointment
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📞 Test 3: Inbound Call - Pricing Question (When Specifically Asked)
+
+**SCENARIO:** Customer specifically asks about pricing
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+> 💡 **IMPORTANT:** Use your REAL phone number when providing contact information.
+
+### Test Questions:
+
+1. Say: "Hey Sarah, I'm looking for a quote for a new furnace"
+
+2. Ask: "How much does it cost?"
+
+3. Ask: "What about a new AC unit?"
+
+4. Ask: "What if I need both furnace and AC?"
+
+5. Ask: "How much is just to come look at it?"
+
+### Edge Cases to Test:
+
+1. Ask for a very specific price: "Can you give me an exact price for a 3-ton AC unit?"
+
+2. Ask multiple pricing questions in sequence:
+   - "How much for furnace?"
+   - "How much for AC?"
+   - "How much for both?"
+
+3. Ask about price comparison: "I got a quote for $5,000, can you beat that?"
+
+### Expected Behavior:
+
+- ✅ AI provides brief pricing range when specifically asked
+- ✅ Response is **SHORT** (1-2 sentences max)
+- ✅ AI always ends with offer to schedule assessment
+- ✅ AI doesn't commit to exact prices
+- ✅ AI handles price comparison requests professionally
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📞 Test 4: Inbound Call - Cheaper Options Question
+
+**SCENARIO:** Customer asks if there are cheaper options
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+> 💡 **IMPORTANT:** Use your REAL phone number when providing contact information.
+
+### Test Questions:
+
+1. Ask: "How much does a new furnace cost?"
+
+2. Say: "That's a lot of money. Do you have anything cheaper?"
+
+3. Ask: "Can't you just tell me if you have cheaper models?"
+
+4. Ask: "Do you offer payment plans?"
+
+### Edge Cases to Test:
+
+1. Try multiple times to get cheaper options:
+   - "Do you have anything cheaper?"
+   - "What's your lowest price?"
+   - "Can you do it for less?"
+
+2. Mention a competitor's price: "Another company quoted me $4,000, can you match that?"
+
+### Expected Behavior:
+
+- ✅ AI does **NOT** give more pricing information
+- ✅ AI says: "I understand. We do on-site assessments to look at your specific situation and find the best options for your needs. Would you like to schedule one?"
+- ✅ Response is **SHORT** and professional
+- ✅ AI does **NOT** mention discounts or pricing ranges
+- ✅ AI consistently redirects to assessment when pressed for cheaper options
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📞 Test 5: Inbound Call - Emergency (No Heat in Winter)
+
+**SCENARIO:** Customer has urgent heating issue
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+> 💡 **IMPORTANT:** Use your REAL phone number when providing contact information.
+
+### Test Questions:
+
+1. Say: "My heat is out and I have a baby in the house!"
+
+2. Say: "It's been out since yesterday, it's really cold"
+
+3. Ask: "Can someone come today?"
+
+4. Say: "My AC is broken and it's 95 degrees outside"
+
+5. Say: "My heat is out and I have an 85-year-old mother living with me"
+
+### Edge Cases to Test:
+
+1. Report emergency when it's not truly urgent (e.g., "My heat is out" in summer when it's 70 degrees)
+
+2. Mention multiple emergency factors: "No heat, baby in house, elderly parent, and it's below freezing"
+
+3. Request emergency appointment when calendar is fully booked for today
+
+### Expected Behavior:
+
+- ✅ AI recognizes urgency immediately with health threats
+- ✅ AI says: "Oh no, that's definitely urgent. Let's get someone out there today."
+- ✅ AI prioritizes same-day or next-day appointment
+- ✅ AI collects essential info quickly (name, phone, address)
+- ✅ AI offers earliest available slot
+- ✅ AI is empathetic and professional
+- ✅ AI distinguishes between true emergencies and regular service requests
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📞 Test 6: Inbound Call - Service Area Question
+
+**SCENARIO:** Customer asks if you service their area
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+### Test Questions:
+
+1. Ask: "Do you service Salem?"
+
+2. Ask: "What about West Salem?"
+
+3. Ask: "Do you service Keizer?"
+
+4. Ask: "Do you work in McMinnville or Newberg?"
+
+5. Ask: "What about Portland?"
+
+6. Ask: "Do you service Eugene?"
+
+7. Ask: "What's your service radius?"
+
+8. Ask: "Do you service zip code 97301?"
+
+### Edge Cases to Test:
+
+1. Ask about a very far location: "Do you service Bend, Oregon?"
+
+2. Ask with unclear location: "Do you service that town near Salem?"
+
+3. Ask about multiple locations: "I have properties in Salem and Portland, can you service both?"
+
+### Expected Behavior:
+
+- ✅ For Salem: "Yes, we service all of Salem including West Salem. All zip codes are covered."
+- ✅ For Portland: "Portland is in our extended area, about 35-42 miles north. We handle projects there on a case-by-case basis."
+- ✅ AI provides accurate service area information for all surrounding towns
+- ✅ AI explains extended area policy clearly
+- ✅ AI handles unclear location requests appropriately
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📞 Test 7: Inbound Call - Company Name Verification
+
+**SCENARIO:** Verify AI says correct company name
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+### Steps:
+
+1. Call your main business number: **+1-971-366-2499**
+2. Listen to the greeting carefully
+
+### Expected Behavior:
+
+- ✅ AI says: "Thank you for calling Valley View HVAC. This is Sarah. How can I help you today?"
+- ✅ AI pronounces "HVAC" as "H Vak" (NOT spelled out as H.V.A.C)
+- ✅ Company name is correct
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📞 Test 8: Inbound Call - Response Length & Tone
+
+**SCENARIO:** Verify AI responses are concise and professional
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+> 💡 **IMPORTANT:** Use your REAL phone number when providing contact information.
+
+### Steps:
+
+1. Call your main business number: **+1-971-366-2499**
+2. Have a conversation about needing service
+3. Pay attention to response length and tone
+4. When asked for your phone number, provide your **REAL phone number**
+
+### Expected Behavior:
+
+- ✅ Responses are **SHORT** (1-2 sentences max)
+- ✅ AI is professional and mature
+- ✅ AI is to the point, no unnecessary details
+- ✅ AI sounds natural and human-like
+- ✅ AI pauses appropriately (1-2 seconds) for interruptions
+- ✅ AI stops immediately if you interrupt
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📝 Test 9: Form Submission - Website Form
+
+**SCENARIO:** Customer submits form on your website
+
+**FORM LINK:** https://link.innovasaleslab.com/widget/form/SvhgRcNrTXr1w3J0eUNK?notrack=true
+
+> ⚠️ **IMPORTANT:** Use your **REAL phone number** in the form. This ensures you receive the outbound call and SMS messages for complete testing.
+
+### Test Questions:
+
+1. Go to the form link: **https://link.innovasaleslab.com/widget/form/SvhgRcNrTXr1w3J0eUNK?notrack=true**
+
+2. Fill out the form with:
+   - **First Name:** [Your real first name]
+   - **Last Name:** [Your real last name]
+   - **Phone:** [Your REAL phone number - the one you want to receive calls on] (required field)
+   - **Email:** [Your real email address]
+   - Check the transactional messages consent checkbox
+   - Check the marketing messages consent checkbox (optional)
+
+3. Click "Submit"
+
+4. Wait 30 seconds - do you receive an outbound call?
+
+### Verification Steps:
+
+1. Check if form submission was successful
+
+2. Check GoHighLevel - was a contact created?
+
+3. Check contact tags - does it have "website" tag?
+
+4. Check contact custom field `lead_source` - what value does it show?
+
+5. Count how many outbound calls you received
+
+6. If the call was not answered, check how many SMS fallback messages you received
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📞 Test 10: Outbound Call - Form Submission Trigger
+
+**SCENARIO:** Verify outbound call works after form submission
+
+**FORM LINK:** https://link.innovasaleslab.com/widget/form/SvhgRcNrTXr1w3J0eUNK?notrack=true
+
+### Test Questions:
+
+1. Submit the form at: **https://link.innovasaleslab.com/widget/form/SvhgRcNrTXr1w3J0eUNK?notrack=true**
+
+2. Answer the outbound call when it comes - how long did it take to receive the call?
+
+3. Have a conversation with the AI about your service needs
+
+4. Ask about scheduling an appointment
+
+5. Complete the appointment booking process if you choose to
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 🔄 Test 11: Duplicate Call Prevention
+
+**SCENARIO:** Verify no duplicate calls are made
+
+**FORM LINK:** https://link.innovasaleslab.com/widget/form/SvhgRcNrTXr1w3J0eUNK?notrack=true
+
+### Test Questions:
+
+1. Submit the form at: **https://link.innovasaleslab.com/widget/form/SvhgRcNrTXr1w3J0eUNK?notrack=true** with your real phone number
+
+2. Wait for the outbound call and answer it
+
+3. Check GoHighLevel contact custom field: `vapi_called` - what value does it show?
+
+4. Submit the same form again with the same phone number
+
+5. Wait 1 minute - do you receive another call?
+
+6. Check how many calls were made to your phone number
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 💬 Test 12: SMS Fallback - Unanswered Call
+
+**SCENARIO:** Customer doesn't answer outbound call
+
+**FORM LINK:** https://link.innovasaleslab.com/widget/form/SvhgRcNrTXr1w3J0eUNK?notrack=true
+
+### Test Questions:
+
+1. Submit the form at: **https://link.innovasaleslab.com/widget/form/SvhgRcNrTXr1w3J0eUNK?notrack=true** with your real phone number
+
+2. When outbound call comes, **DO NOT answer** (let it go to voicemail or decline the call)
+
+3. Wait 1-2 minutes - do you receive an SMS message?
+
+4. What does the SMS message say?
+
+5. Check if you receive multiple SMS messages (should only be one)
+
+6. Check GoHighLevel contact custom field: `sms_fallback_sent` - what value does it show?
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📞 Test 13: Inbound Caller - No Outbound Call/SMS
+
+**SCENARIO:** Verify inbound callers don't receive outbound calls
+
+### Test Questions:
+
+1. Make an inbound call to your main number: **+1-971-366-2499**
+
+2. Have a conversation and book an appointment
+
+3. Check GoHighLevel contact - what is the `lead_source` value?
+
+4. Wait 5 minutes - do you receive an outbound call?
+
+5. Do you receive any SMS fallback messages?
+
+6. Do you receive an SMS confirmation for the booked appointment?
+
+7. Check how many SMS messages you received total
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📅 Test 14: Appointment Booking - Calendar Availability
+
+**SCENARIO:** Verify calendar shows only available slots
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+### Test Questions:
+
+1. Say: "I need to schedule a service appointment"
+
+2. Ask: "What times are available tomorrow?"
+
+3. Ask: "Do you have anything at 10 AM tomorrow?"
+
+4. Ask: "Can someone come today?"
+
+5. Ask: "Can you come at 6 PM?"
+
+6. Ask: "Can you come on Saturday?"
+
+7. Ask: "What do you have available next week?"
+
+8. Manually book a slot in your GHL calendar, then call and request that exact time - does the AI offer it or suggest alternatives?
+
+### Edge Cases to Test:
+
+1. Request appointment when calendar is fully booked for tomorrow
+
+2. Request times outside business hours: "Can you come at 7 AM?" or "Can you come at 5 PM?"
+
+3. Request appointment in the past: "Can you come yesterday?"
+
+4. Request appointment very far in future: "Can you come in 3 months?"
+
+5. Call after 4:30 PM and request same-day appointment
+
+6. Change appointment type mid-conversation: "I need a diagnostic" then "Actually, I need an estimate"
+
+### Expected Behavior:
+
+- ✅ AI only offers slots marked as "available" in calendar
+- ✅ AI does **NOT** offer already-booked slots
+- ✅ AI offers slots starting from tomorrow (if past 4:30 PM today)
+- ✅ AI offers slots in business hours (8 AM - 4:30 PM)
+- ✅ No double-booking occurs
+- ✅ AI uses correct calendar type (Diagnostic for repairs, Proposal for estimates)
+- ✅ AI handles fully booked days gracefully
+- ✅ AI explains business hours when requested times are outside hours
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 💬 Test 15: Appointment Confirmation SMS
+
+**SCENARIO:** Verify SMS confirmation is sent after booking
+
+### Test Questions:
+
+1. Book an appointment (via inbound or outbound call)
+
+2. Complete the booking process
+
+3. Wait 10-30 seconds - do you receive an SMS confirmation?
+
+4. What information does the SMS include? (Date, time, service type, address)
+
+5. Check if you receive multiple confirmation SMS messages (should only be one)
+
+6. Check GoHighLevel contact custom field: `confirmation_sent_{appointment_id}` - what value does it show?
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📚 Test 16: Knowledge Base - Service Types
+
+**SCENARIO:** Verify AI knows what services you offer
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+### Test Questions:
+
+1. Ask: "Do you work on boilers?"
+
+2. Ask: "Do you service geothermal systems?"
+
+3. Ask: "Can you fix radiant heating?"
+
+4. Ask: "Do you work on steam or hydro systems?"
+
+5. Ask: "What types of residential systems do you work on?"
+
+6. Ask: "Do you do commercial work?"
+
+7. Ask: "Can you install ductless mini-splits?"
+
+8. Ask: "I have a boiler, can you replace it with a new system?"
+
+9. Ask: "Do you fix furnaces?"
+
+10. Ask: "Do you work on air conditioning?"
+
+### Edge Cases to Test:
+
+1. Ask with unclear system type: "I have some kind of heating system, can you work on it?"
+
+2. Ask about multiple systems: "I have both a furnace and a boiler, can you help?"
+
+3. Ask about heat pumps: "Do you work on heat pumps?"
+
+### Expected Behavior:
+
+- ✅ For boilers: "No, we don't service boilers, but we can fit ducted or ductless systems and we can sub out the boiler removal for you."
+- ✅ AI correctly lists: Residential (whole home ducted, split home ducted, ductless) and Commercial (wall hung or roof mounted packaged units)
+- ✅ AI does **NOT** offer services you don't provide (radiant, geothermal, hydro/steam)
+- ✅ AI handles unclear requests by asking for clarification
+- ✅ AI provides accurate information about what CAN be done
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📚 Test 17: Knowledge Base - Discounts
+
+**SCENARIO:** Verify AI knows about recognition programs
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+### Steps:
+
+1. Call your main business number: **+1-971-366-2499**
+2. Ask: "Do you offer any discounts for veterans?"
+3. Ask: "What about seniors?"
+
+### Expected Behavior:
+
+- ✅ AI mentions recognition programs: Senior, Veteran, Educator, First Responder
+- ✅ AI explains: "Each of these can save you about 10% on products and materials."
+- ✅ AI mentions combined savings (up to 14-16% for multiple qualifiers)
+- ✅ AI is professional and doesn't over-promise
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📚 Test 18: Knowledge Base - Business Hours
+
+**SCENARIO:** Verify AI knows business hours
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+### Test Questions:
+
+1. Ask: "What are your hours?"
+
+2. Ask: "Do you work weekends?"
+
+3. Ask: "What time do you close?"
+
+4. Ask: "Can I call after hours?"
+
+5. Ask: "When do your technicians work?"
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📞 Test 19: Warm Transfer - To Staff
+
+**SCENARIO:** Customer requests to speak with a person
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+> 💡 **IMPORTANT:** Use your REAL phone number when providing contact information.
+
+### Steps:
+
+1. Call your main business number: **+1-971-366-2499**
+2. During conversation, say: "Can I speak with Scott?"
+3. Or say: "I need to talk to someone"
+4. When asked for your phone number, provide your **REAL phone number**
+
+### Expected Behavior:
+
+- ✅ AI offers to transfer: "I'd be happy to transfer you to Scott. One moment please."
+- ✅ Transfer is initiated to correct staff member
+- ✅ Call is connected (if staff is available)
+- ✅ If unavailable, AI offers alternative (voicemail, callback, etc.)
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 🗣️ Test 20: Interruption Handling
+
+**SCENARIO:** Verify AI handles interruptions naturally
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+### Test Questions:
+
+1. Call and immediately start talking while the AI is greeting
+
+2. While the AI is explaining something, interrupt and say: "Wait, I have a question"
+
+3. While the AI is listing appointment times, interrupt and say: "Actually, I need to check my calendar first"
+
+4. Interrupt the AI multiple times in a row during the conversation
+
+5. While the AI is speaking, interrupt and say: "Wait, this is an emergency!"
+
+### Edge Cases to Test:
+
+1. Start talking within 0.5 seconds of the AI starting to speak
+
+2. While the AI is explaining pricing, interrupt and ask: "What's your address?"
+
+3. Interrupt the AI, then don't say anything for 3 seconds
+
+### Expected Behavior:
+
+- ✅ AI stops speaking immediately when you interrupt
+- ✅ AI listens to what you say
+- ✅ AI responds appropriately to your interruption
+- ✅ AI doesn't continue with previous statement
+- ✅ AI sounds natural, not robotic
+- ✅ AI handles multiple interruptions gracefully
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## ✅ Test 21: Name & Phone Confirmation
+
+**SCENARIO:** Verify AI confirms collected information
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+> 💡 **IMPORTANT:** Use your **REAL name and phone number** for this test.
+
+### Steps:
+
+1. Call your main business number: **+1-971-366-2499**
+2. Provide your **REAL name** and **REAL phone number** when asked
+3. Listen for confirmation - AI should repeat both back to you
+
+### Expected Behavior:
+
+- ✅ AI repeats your **FULL NAME** back to you
+- ✅ AI repeats your **PHONE NUMBER** back to you
+- ✅ AI asks: "So that's [Full Name], and your phone number is [Phone Number]. Is that correct?"
+- ✅ AI waits for your confirmation before proceeding
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 🏷️ Test 22: Lead Source Tracking
+
+**SCENARIO:** Verify lead sources are correctly tracked
+
+### Test Questions:
+
+1. Submit a form from your website
+
+2. Check GoHighLevel contact - what tags does the contact have?
+
+3. Check contact custom field `lead_source` - what value does it show?
+
+4. Make an inbound call and book an appointment
+
+5. Check the contact created from the inbound call - what is the `lead_source` value?
+
+6. Verify that website form contacts receive outbound calls, but inbound call contacts do not
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 🔄 Test 23: Multiple Form Submissions - Deduplication
+
+**SCENARIO:** Same person submits form multiple times
+
+**FORM LINK:** https://link.innovasaleslab.com/widget/form/SvhgRcNrTXr1w3J0eUNK?notrack=true
+
+### Test Questions:
+
+1. Submit the form at: **https://link.innovasaleslab.com/widget/form/SvhgRcNrTXr1w3J0eUNK?notrack=true** with your real phone number
+
+2. Wait for the outbound call and answer it
+
+3. Submit the same form again with the same phone number
+
+4. Wait 1 minute - do you receive another call?
+
+5. Check GoHighLevel - was a new contact created or was the existing one updated?
+
+6. Count total calls and SMS messages received - how many of each?
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 💰 Test 24: Weekend/Emergency Pricing
+
+**SCENARIO:** Customer asks about weekend or emergency pricing
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+### Test Questions:
+
+1. Ask: "How much do you charge for weekend service?"
+
+2. Ask: "What about emergency calls?"
+
+3. Ask: "Is there a flat rate for weekend visits?"
+
+4. Ask: "How much more expensive is emergency service?"
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 🗺️ Test 25: Out of Service Area
+
+**SCENARIO:** Customer from outside service area
+
+**PHONE NUMBER TO CALL:** `+1-971-366-2499`
+
+> 💡 **IMPORTANT:** Use your REAL phone number when providing contact information.
+
+### Test Questions:
+
+1. Provide an address just outside service area: "My address is 123 Main St, Corvallis, Oregon"
+
+2. Provide an address far outside service area: "My address is 123 Main St, Bend, Oregon"
+
+3. Ask: "How much extra do you charge for coming to [far location]?"
+
+4. Describe a large project in extended area: "I need a full system replacement for a 5,000 sq ft commercial building in Portland"
+
+5. Describe a small project in extended area: "I just need a diagnostic for my AC in Eugene"
+
+### Edge Cases to Test:
+
+1. Provide unclear address: "I live about 30 miles from Salem"
+
+2. Provide address exactly on the border of service area (25 miles from Salem)
+
+3. Mention multiple properties: "I have properties in Salem and in Bend, can you service both?"
+
+4. Insist on service despite being far away: "I r
+eally need you to come, I'll pay extra"
+
+### Expected Behavior:
+
+- ✅ AI checks service area
+- ✅ AI explains: "That's outside our primary service area. We handle projects there on a case-by-case basis depending on project size."
+- ✅ AI is honest but helpful
+- ✅ AI may still offer to schedule if project is large enough
+- ✅ AI explains out-of-area pricing when asked
+- ✅ AI handles unclear addresses by asking for clarification
+
+### Actual Results:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+**PASS / FAIL:** [ ]
+
+### Client Feedback:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## 📊 Overall Test Results Summary
+
+**Total Tests:** 25  
+**Tests Passed:** _____  
+**Tests Failed:** _____
+
+**OVERALL PASS / FAIL:** [ ]
+
+---
+
+## 💬 General Feedback & Observations
+
+### What worked well:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+### What needs improvement:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+### Ratings:
+
+| Category | Rating |
+|----------|--------|
+| AI Voice Quality (clarity, naturalness) | [ ] Excellent  [ ] Good  [ ] Fair  [ ] Poor |
+| AI Response Speed | [ ] Excellent  [ ] Good  [ ] Fair  [ ] Poor |
+| AI Professionalism & Tone | [ ] Excellent  [ ] Good  [ ] Fair  [ ] Poor |
+| Overall System Performance | [ ] Excellent  [ ] Good  [ ] Fair  [ ] Poor |
+
+### Additional Comments:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+## ✍️ Sign-Off
+
+**Tester Name:** _______________  
+**Date:** _______________  
+**Signature:** _______________
+
+**Approved for Production:** [ ] YES  [ ] NO
+
+### If NO, what needs to be fixed before going live:
+
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+---
+
+**End of Testing Protocol**

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
+from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from src.utils.logging import setup_logging, logger
@@ -10,6 +11,8 @@ from src.models import (
     CheckCalendarAvailabilityResponse,
     BookAppointmentRequest,
     BookAppointmentResponse,
+    CancelAppointmentRequest,
+    CancelAppointmentResponse,
     CreateContactRequest,
     CreateContactResponse,
     SendConfirmationRequest,
@@ -18,16 +21,20 @@ from src.models import (
     InitiateWarmTransferResponse,
     LogCallSummaryRequest,
     LogCallSummaryResponse,
+    CheckBusinessHoursRequest,
+    CheckBusinessHoursResponse,
 )
 from src.functions import (
     classify_call_type,
     check_calendar_availability,
     book_appointment,
+    cancel_appointment,
     create_contact,
     send_confirmation,
     initiate_warm_transfer,
     log_call_summary,
 )
+from src.functions.check_business_hours import check_business_hours_function
 from src.webhooks import router as webhook_router
 from src.monitoring import router as monitoring_router
 from src.config import settings
@@ -102,6 +109,12 @@ async def classify_call_type_endpoint(request: ClassifyCallTypeRequest):
     return await classify_call_type(request)
 
 
+@app.post("/functions/check-business-hours", response_model=CheckBusinessHoursResponse)
+async def check_business_hours_endpoint(request: Optional[CheckBusinessHoursRequest] = None):
+    """Check current business hours status and get current date/time"""
+    return await check_business_hours_function(request)
+
+
 @app.post("/functions/check-calendar-availability", response_model=CheckCalendarAvailabilityResponse)
 async def check_calendar_availability_endpoint(request: CheckCalendarAvailabilityRequest):
     """Check available appointment slots"""
@@ -112,6 +125,12 @@ async def check_calendar_availability_endpoint(request: CheckCalendarAvailabilit
 async def book_appointment_endpoint(request: BookAppointmentRequest):
     """Book appointment in GHL calendar"""
     return await book_appointment(request)
+
+
+@app.post("/functions/cancel-appointment", response_model=CancelAppointmentResponse)
+async def cancel_appointment_endpoint(request: CancelAppointmentRequest):
+    """Cancel an existing appointment in GHL"""
+    return await cancel_appointment(request)
 
 
 @app.post("/functions/create-contact", response_model=CreateContactResponse)

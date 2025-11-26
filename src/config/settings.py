@@ -45,6 +45,8 @@ class Settings(BaseSettings):
     # Webhooks
     webhook_base_url: Optional[str] = None
     webhook_secret: Optional[str] = None
+    ghl_appointment_webhook_url: Optional[str] = None
+    ghl_custom_fields_webhook_url: Optional[str] = None  # For custom fields automation
     
     model_config = ConfigDict(
         env_file=".env",

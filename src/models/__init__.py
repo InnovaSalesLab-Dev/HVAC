@@ -9,6 +9,8 @@ from .schemas import (
     CalendarSlot,
     BookAppointmentRequest,
     BookAppointmentResponse,
+    CancelAppointmentRequest,
+    CancelAppointmentResponse,
     CreateContactRequest,
     CreateContactResponse,
     SendConfirmationRequest,
@@ -17,6 +19,8 @@ from .schemas import (
     InitiateWarmTransferResponse,
     LogCallSummaryRequest,
     LogCallSummaryResponse,
+    CheckBusinessHoursRequest,
+    CheckBusinessHoursResponse,
     GHLWebhookEvent,
 )
 
@@ -31,6 +35,8 @@ __all__ = [
     "CalendarSlot",
     "BookAppointmentRequest",
     "BookAppointmentResponse",
+    "CancelAppointmentRequest",
+    "CancelAppointmentResponse",
     "CreateContactRequest",
     "CreateContactResponse",
     "SendConfirmationRequest",
@@ -39,6 +45,8 @@ __all__ = [
     "InitiateWarmTransferResponse",
     "LogCallSummaryRequest",
     "LogCallSummaryResponse",
+    "CheckBusinessHoursRequest",
+    "CheckBusinessHoursResponse",
     "GHLWebhookEvent",
 ]
 

@@ -2,6 +2,7 @@ from src.models import CreateContactRequest, CreateContactResponse
 from src.integrations.ghl import GHLClient
 from src.utils.validation import validate_phone_number, validate_email, validate_zip_code
 from src.utils.ghl_fields import build_custom_fields_array, normalize_ghl_field_key
+from src.utils.phone_normalize import normalize_phone_for_comparison, phones_match, is_similar_phone
 from src.utils.logging import logger
 
 
@@ -9,6 +10,7 @@ async def create_contact(request: CreateContactRequest) -> CreateContactResponse
     """
     Create or update contact in GHL.
     Checks if contact exists first (by phone/email).
+    CRITICAL: Prevents updating phone numbers that would conflict with other contacts.
     """
     ghl = GHLClient()
     
@@ -17,10 +19,27 @@ async def create_contact(request: CreateContactRequest) -> CreateContactResponse
     email = validate_email(request.email) if request.email else None
     zip_code = validate_zip_code(request.zip_code) if request.zip_code else None
     
-    # Check if contact exists (search by phone first, then email)
+    # CRITICAL: Check if contact exists with robust phone matching
+    # Search by phone first (most reliable identifier)
     existing_contact = None
     if phone:
         existing_contact = await ghl.get_contact(phone=phone)
+        
+        # If not found with exact match, try broader search to catch formatting differences
+        if not existing_contact:
+            # Try searching with normalized phone (digits only)
+            phone_normalized = normalize_phone_for_comparison(phone)
+            if phone_normalized:
+                # Search again - GHL search should handle this, but double-check results
+                search_result = await ghl.get_contact(phone=phone)
+                if search_result:
+                    # Verify the phone actually matches (handle GHL returning similar numbers)
+                    existing_phone = search_result.get("phone", "")
+                    if phones_match(phone, existing_phone):
+                        existing_contact = search_result
+                        logger.info(f"✅ Found existing contact by phone (normalized match): {existing_contact.get('id')}")
+    
+    # If still not found, try email
     if not existing_contact and email:
         existing_contact = await ghl.get_contact(email=email)
     
@@ -33,19 +52,31 @@ async def create_contact(request: CreateContactRequest) -> CreateContactResponse
     if request.custom_fields:
         custom_fields_dict.update(request.custom_fields)
     
+    # CRITICAL: Set lead_source to "inbound" for contacts created via inbound calls
+    # This prevents them from receiving outbound lead SMS fallback messages
+    # Only set if not already provided (allows override if needed)
+    if "lead_source" not in custom_fields_dict and "contact.lead_source" not in custom_fields_dict:
+        custom_fields_dict["lead_source"] = "inbound"
+        logger.info("📋 Setting lead_source to 'inbound' for contact created via inbound call")
+    
     # Add SMS consent to custom fields
     if request.sms_consent:
         custom_fields_dict["sms_consent"] = "true"
     
-    custom_fields_array = build_custom_fields_array(custom_fields_dict)
+    # Build custom fields array - use field IDs for better reliability
+    custom_fields_array = await build_custom_fields_array(custom_fields_dict, use_field_ids=True)
     
     # Build contact data - only include email if it's valid
+    # GHL requires city and state for address to be properly saved and displayed
     contact_data = {
         "firstName": name_parts[0] if name_parts else "",
         "lastName": name_parts[1] if len(name_parts) > 1 else "",
         "phone": phone,
         "address1": request.address or "",
         "postalCode": zip_code or "",
+        "city": "Salem",  # Default to Salem, OR (can be updated if address parsing improves)
+        "state": "OR",  # Oregon
+        "country": "United States",
         "customFields": custom_fields_array if custom_fields_array else []
     }
     
@@ -54,9 +85,46 @@ async def create_contact(request: CreateContactRequest) -> CreateContactResponse
         contact_data["email"] = email
     
     if existing_contact:
-        # Update existing contact
+        # Update existing contact - BUT check for phone conflicts first
         contact_id = existing_contact.get("id")
-        logger.info(f"Updating existing contact: {contact_id}")
+        existing_phone = existing_contact.get("phone", "")
+        existing_name = f"{existing_contact.get('firstName', '')} {existing_contact.get('lastName', '')}".strip()
+        
+        logger.info(f"📋 Found existing contact: {contact_id} ({existing_name})")
+        
+        # CRITICAL: Check if updating phone would create a conflict with another contact
+        if phone and existing_phone:
+            existing_phone_normalized = normalize_phone_for_comparison(existing_phone)
+            new_phone_normalized = normalize_phone_for_comparison(phone)
+            
+            # If phones don't match, check if new phone belongs to another contact
+            if existing_phone_normalized != new_phone_normalized:
+                logger.warning(f"⚠️ Phone number mismatch detected!")
+                logger.warning(f"   Existing contact phone: {existing_phone} (normalized: {existing_phone_normalized})")
+                logger.warning(f"   New phone provided: {phone} (normalized: {new_phone_normalized})")
+                
+                # Check if new phone belongs to another contact
+                conflict_contact = await ghl.get_contact(phone=phone)
+                if conflict_contact and conflict_contact.get("id") != contact_id:
+                    conflict_name = f"{conflict_contact.get('firstName', '')} {conflict_contact.get('lastName', '')}".strip()
+                    logger.error(f"❌ CRITICAL: Cannot update phone number!")
+                    logger.error(f"   Phone {phone} already belongs to another contact: {conflict_contact.get('id')} ({conflict_name})")
+                    logger.error(f"   Keeping existing contact's phone: {existing_phone}")
+                    logger.error(f"   NOT updating phone number to prevent data loss")
+                    
+                    # Remove phone from update data - keep existing phone
+                    contact_data.pop("phone", None)
+                elif is_similar_phone(existing_phone, phone, max_diff=1):
+                    # Phones are similar (likely typo) - keep existing phone
+                    logger.warning(f"⚠️ Phone numbers are similar (likely typo): {existing_phone} vs {phone}")
+                    logger.warning(f"   Keeping existing phone: {existing_phone}")
+                    contact_data.pop("phone", None)
+                else:
+                    # Phones are different but no conflict - allow update
+                    logger.info(f"✅ Phone numbers differ but no conflict found - updating phone")
+        
+        # Update existing contact (phone may have been removed from contact_data if conflict)
+        logger.info(f"🔄 Updating existing contact: {contact_id}")
         await ghl.update_contact(contact_id, contact_data)
         is_new = False
     else:

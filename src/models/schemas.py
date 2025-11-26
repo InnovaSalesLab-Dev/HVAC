@@ -51,6 +51,22 @@ class CalendarSlot(BaseModel):
     available: bool
 
 
+class CheckBusinessHoursRequest(BaseModel):
+    """Request model - no parameters needed, uses current time"""
+    pass
+
+
+class CheckBusinessHoursResponse(BaseModel):
+    """Response with business hours status and current date/time"""
+    isBusinessHours: bool
+    message: str
+    day: str
+    timezone: str
+    currentTime: str
+    currentDate: str
+    businessHoursToday: str
+
+
 class CheckCalendarAvailabilityResponse(BaseModel):
     slots: List[CalendarSlot]
     calendar_id: str
@@ -65,12 +81,25 @@ class BookAppointmentRequest(BaseModel):
     service_type: ServiceType
     notes: Optional[str] = None
     urgency: Optional[UrgencyLevel] = None
+    service_address: Optional[str] = None  # Service address for appointment location
+    reschedule_appointment_id: Optional[str] = None  # If provided, cancel this appointment before booking new one
 
 
 class BookAppointmentResponse(BaseModel):
     appointment_id: str
     success: bool
     message: str
+
+
+class CancelAppointmentRequest(BaseModel):
+    contact_id: str
+    appointment_id: str
+
+
+class CancelAppointmentResponse(BaseModel):
+    success: bool
+    message: str
+    method: Optional[str] = None  # "api_delete", "api_update", "timeline_note", "failed", "error"
 
 
 class CreateContactRequest(BaseModel):

@@ -1,888 +1,664 @@
 # 🧪 Scott Valley HVAC - AI Voice Agent Testing Protocol
 
-**Version:** 2.0  
+**Version:** 3.0  
 **Last Updated:** November 2025  
-**Project:** AI Voice Automation System (Vapi.ai + GoHighLevel)
+**Project:** AI Voice Automation System
 
 ---
 
-## 📋 Table of Contents
+## 🎯 Test Scenarios
 
-1. [Pre-Testing Checklist](#pre-testing-checklist)
-2. [Test Environment Setup](#test-environment-setup)
-3. [Automated System Tests](#automated-system-tests)
-4. [Inbound Call Scenarios](#inbound-call-scenarios)
-5. [Outbound Call Scenarios](#outbound-call-scenarios)
-6. [Integration Tests](#integration-tests)
-7. [Knowledge Base Tests](#knowledge-base-tests)
-8. [Data Capture & CRM Tests](#data-capture--crm-tests)
-9. [Error Handling & Edge Cases](#error-handling--edge-cases)
-10. [Performance & Monitoring](#performance--monitoring)
-11. [Test Execution Log](#test-execution-log)
+### TEST 1: Inbound Call - Service/Repair Request
 
----
+**Objective:** Verify AI handles heating/cooling repair requests correctly
 
-## ✅ Pre-Testing Checklist
+#### Step 1: Initiate Call
+- Call the business phone number
+- Wait for AI greeting
 
-### Environment Configuration
+#### Step 2: Test Questions & Expected Answers
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Vapi API Key Configured | ⬜ | Key: `bee0337d-41cd-49c2-9038-98cd0e18c75b` |
-| GHL API Key Configured | ⬜ | Location ID: `NHEXwG3xQVwKMO77jAuB` |
-| Twilio Credentials Set | ⬜ | Account SID & Auth Token |
-| Assistant IDs Configured | ⬜ | Inbound: `d61d0517-4a65-496e-b97f-d3ad220f684e`<br>Outbound: `d6c74f74-de2a-420d-ae59-aab8fa7cbabe` |
-| Phone Number Configured | ⬜ | Vapi phone number ID set |
-| Webhook URLs Active | ⬜ | GHL → FastAPI webhooks configured |
-| Custom Fields Created | ⬜ | All 14 fields in GHL |
+| Question | Expected Answer | Pass Criteria |
+|----------|----------------|---------------|
+| "Hello, my furnace stopped working" | AI greets warmly, expresses empathy, asks for details | ✅ Empathetic, professional tone |
+| "My name is John Smith, phone 503-555-0101" | AI confirms name and phone, asks for email/address | ✅ Captures name and phone correctly |
+| "My address is 123 Main St, Salem, OR 97301" | AI verifies service area, asks for SMS consent | ✅ Confirms Salem coverage, asks SMS consent |
+| "Yes, I'd like text confirmations" | AI acknowledges, checks calendar availability | ✅ SMS consent captured |
+| "When can you come out?" | AI offers available appointment times (next 7-14 days) | ✅ Shows available slots, correct calendar |
+| "Tomorrow at 2 PM works" | AI books appointment, confirms details | ✅ Appointment booked, details confirmed |
+| "Yes, send me a confirmation" | AI sends SMS confirmation | ✅ SMS sent successfully |
 
-### System Health Check
+#### Step 3: Verification Checklist
 
-| Component | Status | Last Checked | Notes |
-|-----------|--------|--------------|-------|
-| Vapi API Connection | ⬜ | - | Should return 200 OK |
-| GHL API Connection | ⬜ | - | Should return calendars |
-| FastAPI Server | ⬜ | - | Should be running on port 8000 |
-| Database Connection | ⬜ | - | If applicable |
-| Twilio Connection | ⬜ | - | Test SMS/voice |
-
----
-
-## 🔧 Test Environment Setup
-
-### Required Tools
-
-- **Vapi Test Client**: `scripts/vapi_test_client.py`
-- **Test Runner**: `scripts/run_test_scenarios.py`
-- **Call Log Analyzer**: `scripts/check_call_logs.py`
-- **Quick Test**: `scripts/quick_test.py`
-- **Automated Tests**: `scripts/run_automated_tests.py`
-
-### Test Phone Numbers
-
-| Purpose | Number | Status | Notes |
-|---------|--------|--------|-------|
-| Primary Test Number | `+1XXX-XXX-XXXX` | ⬜ | For inbound/outbound testing |
-| Warm Transfer Test | `+1XXX-XXX-XXXX` | ⬜ | For transfer testing |
-| SMS Fallback Test | `+1XXX-XXX-XXXX` | ⬜ | For SMS testing |
-
-### Running Automated Tests
-
-```bash
-# Run all automated system tests
-export VAPI_API_KEY=bee0337d-41cd-49c2-9038-98cd0e18c75b
-uv run python scripts/run_automated_tests.py
-
-# Check recent calls
-uv run python scripts/check_call_logs.py --limit 10
-
-# Quick single test
-uv run python scripts/quick_test.py "Test message" --phone +1XXX-XXX-XXXX
-```
-
----
-
-## 🤖 Automated System Tests
-
-### Test Suite 1: API Connectivity
-
-| Test ID | Test Name | Expected Result | Status | Notes |
-|---------|-----------|------------------|--------|-------|
-| AUTO-001 | Vapi API Connection | ✅ Successfully connected | ⬜ | Should return 200 OK |
-| AUTO-002 | GHL API Connection | ✅ Successfully connected | ⬜ | Should return calendars |
-| AUTO-003 | Twilio API Connection | ✅ Successfully connected | ⬜ | Test SMS/voice |
-| AUTO-004 | FastAPI Health Check | ✅ Server responding | ⬜ | GET /health returns 200 |
-
-### Test Suite 2: Assistant Configuration
-
-| Test ID | Test Name | Expected Result | Status | Notes |
-|---------|-----------|------------------|--------|-------|
-| AUTO-005 | Inbound Assistant Exists | ✅ Assistant found | ⬜ | ID: `d61d0517-4a65-496e-b97f-d3ad220f684e` |
-| AUTO-006 | Inbound Functions Count | ✅ 7 functions | ⬜ | All required functions present |
-| AUTO-007 | Outbound Assistant Exists | ✅ Assistant found | ⬜ | ID: `d6c74f74-de2a-420d-ae59-aab8fa7cbabe` |
-| AUTO-008 | Outbound Functions Count | ✅ 5 functions | ⬜ | All required functions present |
-| AUTO-009 | Voice Profile Check | ✅ Female voice "hera" | ⬜ | Both assistants |
-| AUTO-010 | Knowledge Base Integration | ✅ System prompt includes KB | ⬜ | Check assistant config |
-
-### Test Suite 3: GHL Configuration
-
-| Test ID | Test Name | Expected Result | Status | Notes |
-|---------|-----------|------------------|--------|-------|
-| AUTO-011 | Diagnostic Calendar Exists | ✅ Calendar found | ⬜ | For repair appointments |
-| AUTO-012 | Proposal Calendar Exists | ✅ Calendar found | ⬜ | For estimate appointments |
-| AUTO-013 | Custom Fields Check | ✅ 14/14 fields exist | ⬜ | All required fields present |
-| AUTO-014 | Webhook Endpoints Active | ✅ Endpoints responding | ⬜ | POST /webhooks/ghl |
-
----
-
-## 📞 Inbound Call Scenarios
-
-### Scenario 1: Service/Repair Request
-
-**Test ID:** INBOUND-001  
-**Priority:** High  
-**Assistant:** Inbound  
-**Expected Duration:** 3-5 minutes
-
-#### Test Steps
-
-1. **Initiate Call**
-   - Call the Vapi phone number
-   - Wait for AI assistant greeting
-
-2. **Conversation Flow**
-   ```
-   You: "Hello, I need help with my heating system"
-   AI: [Should greet warmly and ask for details]
-   
-   You: "My furnace stopped working last night, it's really cold"
-   AI: [Should express empathy and ask for contact info]
-   
-   You: "My name is John Smith, phone is 503-555-0101, email is john.smith@test.com"
-   AI: [Should confirm and ask for address]
-   
-   You: "My address is 123 Main St, Salem, OR 97301"
-   AI: [Should verify service area and ask for SMS consent]
-   
-   You: "Yes, I'd like to receive text confirmations"
-   AI: [Should acknowledge and check calendar]
-   
-   You: "When can you come out to fix it?"
-   AI: [Should offer available appointment times]
-   
-   You: "Yes, tomorrow at 2 PM works for me"
-   AI: [Should book appointment and confirm details]
-   
-   You: "Yes, please send me a confirmation"
-   AI: [Should send confirmation via SMS]
-   ```
-
-3. **Verification Steps**
-   - [ ] Contact created in GHL with all details
-   - [ ] Appointment booked in Diagnostic calendar
-   - [ ] SMS consent set to `true`
-   - [ ] Call summary logged in GHL
-   - [ ] SMS confirmation sent (if consent given)
-   - [ ] Call transcript available in Vapi dashboard
-
-#### Expected Results
-
-| Checkpoint | Expected | Actual | Status |
-|------------|----------|--------|--------|
-| Call Answered | ✅ Within 3 seconds | ⬜ | ⬜ |
-| Contact Created | ✅ In GHL CRM | ⬜ | ⬜ |
-| Appointment Booked | ✅ Correct calendar | ⬜ | ⬜ |
-| SMS Consent Captured | ✅ `true` | ⬜ | ⬜ |
-| Confirmation Sent | ✅ SMS delivered | ⬜ | ⬜ |
-| Call Summary Logged | ✅ In GHL timeline | ⬜ | ⬜ |
+- [ ] Contact information saved in CRM: name, phone, email, address, ZIP code
+- [ ] Appointment booked in service calendar
+- [ ] Customer agreed to receive text confirmations
+- [ ] Call summary saved in customer record
+- [ ] Text confirmation message received by customer
+- [ ] Customer record shows call type and outcome
 
 #### Pass Criteria
-- ✅ All verification steps pass
-- ✅ Call duration < 5 minutes
-- ✅ No errors in call logs
-- ✅ Data accuracy 100%
+✅ **PASS** if all 7 questions answered correctly AND all verification steps pass  
+❌ **FAIL** if any question answered incorrectly OR any verification fails
 
 ---
 
-### Scenario 2: Installation/Estimate Request
+### TEST 2: Inbound Call - Installation/Estimate Request
 
-**Test ID:** INBOUND-002  
-**Priority:** High  
-**Assistant:** Inbound  
-**Expected Duration:** 4-6 minutes
+**Objective:** Verify AI handles installation requests and pricing questions correctly
 
-#### Test Steps
+#### Step 1: Initiate Call
+- Call the business phone number
 
-1. **Initiate Call**
-   - Call the Vapi phone number
-   - Wait for AI assistant greeting
+#### Step 2: Test Questions & Expected Answers
 
-2. **Conversation Flow**
-   ```
-   You: "I'm looking to replace my old air conditioning system"
-   AI: [Should ask for details and explain process]
-   
-   You: "My name is Sarah Johnson, phone 503-555-0102, email sarah.j@test.com"
-   AI: [Should confirm and ask for address]
-   
-   You: "My address is 456 Oak Ave, Keizer, OR 97303"
-   AI: [Should verify service area]
-   
-   You: "How much will it cost?"
-   AI: [Should explain pricing ranges and push for on-site assessment]
-   
-   You: "Can you just give me a quote over the phone?"
-   AI: [Should politely decline and explain why on-site is needed]
-   
-   You: "When can someone come out for an estimate?"
-   AI: [Should check Proposal calendar and offer times]
-   
-   You: "Next Tuesday at 10 AM works"
-   AI: [Should book appointment and confirm]
-   ```
+| Question | Expected Answer | Pass Criteria |
+|----------|----------------|---------------|
+| "I want to replace my old AC system" | AI asks for details, explains on-site assessment needed | ✅ Explains process, doesn't quote over phone |
+| "My name is Sarah Johnson, phone 503-555-0102" | AI confirms, asks for address | ✅ Captures contact info |
+| "My address is 456 Oak Ave, Keizer, OR 97303" | AI verifies service area (Keizer covered) | ✅ Confirms Keizer coverage |
+| "How much will it cost?" | AI explains pricing ranges ($6,200-$9,400 for AC), emphasizes on-site assessment | ✅ Gives range, pushes for on-site |
+| "Can you just give me a quote over the phone?" | AI politely declines, explains why on-site is essential | ✅ Pushes back professionally |
+| "When can someone come for an estimate?" | AI checks **Proposal** calendar, offers times | ✅ Uses Proposal calendar (not Diagnostic) |
+| "Next Tuesday at 10 AM works" | AI books appointment in Proposal calendar | ✅ Appointment in correct calendar |
 
-3. **Verification Steps**
-   - [ ] Contact created with all details
-   - [ ] Appointment booked in **Proposal** calendar (not Diagnostic)
-   - [ ] Call type classified as "installation_estimate"
-   - [ ] AI pushed back on phone quote request
-   - [ ] Call summary includes pricing discussion
+#### Step 3: Verification Checklist
 
-#### Expected Results
-
-| Checkpoint | Expected | Actual | Status |
-|------------|----------|--------|--------|
-| Correct Calendar | ✅ Proposal calendar | ⬜ | ⬜ |
-| Call Type Classification | ✅ installation_estimate | ⬜ | ⬜ |
-| Pricing Pushback | ✅ Explained on-site need | ⬜ | ⬜ |
-| Appointment Duration | ✅ 30-60 minutes | ⬜ | ⬜ |
+- [ ] Contact information saved with all details
+- [ ] Appointment booked in estimate/consultation calendar (NOT service calendar)
+- [ ] AI correctly identified this as an installation/estimate request
+- [ ] AI declined to give exact quote over phone
+- [ ] Call summary includes discussion about pricing and on-site assessment
 
 #### Pass Criteria
-- ✅ Appointment in Proposal calendar
-- ✅ AI correctly handled pricing question
-- ✅ All data captured accurately
+✅ **PASS** if all 7 questions answered correctly AND appointment in Proposal calendar  
+❌ **FAIL** if wrong calendar used OR AI gives exact phone quote
 
 ---
 
-### Scenario 3: Maintenance Request
+### TEST 3: Inbound Call - Emergency Situation
 
-**Test ID:** INBOUND-003  
-**Priority:** Medium  
-**Assistant:** Inbound  
-**Expected Duration:** 2-4 minutes
+**Objective:** Verify AI recognizes and prioritizes emergencies
 
-#### Test Steps
+#### Step 1: Initiate Call
 
-1. **Conversation Flow**
-   ```
-   You: "I need my HVAC system serviced, it's been a while"
-   AI: [Should ask for contact info and schedule]
-   
-   You: "My name is Mike Davis, phone 503-555-0103"
-   AI: [Should ask for address]
-   
-   You: "My address is 789 Pine St, Salem, OR 97302"
-   AI: [Should check calendar and offer times]
-   
-   You: "When can you schedule maintenance?"
-   AI: [Should offer available slots]
-   ```
+#### Step 2: Test Questions & Expected Answers
 
-2. **Verification Steps**
-   - [ ] Contact created
-   - [ ] Appointment booked (Diagnostic or Maintenance calendar)
-   - [ ] Service type: "maintenance"
+| Question | Expected Answer | Pass Criteria |
+|----------|----------------|---------------|
+| "My heat is out and I have a 2-month-old baby, it's freezing" | AI recognizes emergency, expresses urgency, prioritizes | ✅ Recognizes health threat, urgent tone |
+| "This is an emergency, I need someone today" | AI offers same-day or next available appointment | ✅ Offers immediate availability |
+| "My name is Emergency Test, phone 503-555-0104" | AI quickly collects info | ✅ Efficient data collection |
+| "My address is 321 Elm St, Salem, OR 97301" | AI confirms, books urgent appointment | ✅ Books with urgency level |
+
+#### Step 3: Verification Checklist
+
+- [ ] Appointment marked as urgent/emergency
+- [ ] Appointment scheduled same-day or next available slot
+- [ ] Call summary notes health threat (baby mentioned)
+- [ ] Customer record reflects high priority
 
 #### Pass Criteria
-- ✅ Appointment scheduled correctly
-- ✅ Service type identified
+✅ **PASS** if emergency recognized AND same-day/next-day appointment offered  
+❌ **FAIL** if treated as regular appointment OR no urgency noted
 
 ---
 
-### Scenario 4: Emergency Situation
+### TEST 4: Inbound Call - Warm Transfer
 
-**Test ID:** INBOUND-004  
-**Priority:** Critical  
-**Assistant:** Inbound  
-**Expected Duration:** 2-3 minutes
+**Objective:** Verify AI can transfer calls to human staff
 
-#### Test Steps
+#### Step 1: Initiate Call
 
-1. **Conversation Flow**
-   ```
-   You: "My heat is out and I have a 2-month-old baby, it's freezing"
-   AI: [Should recognize emergency and prioritize]
-   
-   You: "This is an emergency, I need someone today"
-   AI: [Should offer same-day or next available]
-   
-   You: "My name is Emergency Test, phone 503-555-0104"
-   AI: [Should quickly collect info]
-   
-   You: "My address is 321 Elm St, Salem, OR 97301"
-   AI: [Should book urgent appointment]
-   ```
+#### Step 2: Test Questions & Expected Answers
 
-2. **Verification Steps**
-   - [ ] Urgency level set to "emergency"
-   - [ ] Appointment scheduled same-day or next available
-   - [ ] Call summary notes health threat (baby)
-   - [ ] Lead quality score reflects urgency
+| Question | Expected Answer | Pass Criteria |
+|----------|----------------|---------------|
+| "I'd like to speak with the owner about pricing" | AI offers warm transfer to Scott | ✅ Offers transfer appropriately |
+| "Yes, please transfer me" | AI initiates transfer to 971-712-6763 | ✅ Transfer initiated correctly |
+| [After transfer] | Staff receives call with context | ✅ Call context maintained |
+
+#### Step 3: Verification Checklist
+
+- [ ] AI offered to transfer call
+- [ ] Call successfully transferred to staff member (971-712-6763)
+- [ ] Transfer recorded in customer record
+- [ ] Call summary notes that transfer occurred
 
 #### Pass Criteria
-- ✅ Emergency recognized and prioritized
-- ✅ Same-day/next-day appointment offered
-- ✅ Health threat noted in summary
+✅ **PASS** if transfer initiated AND staff receives call  
+❌ **FAIL** if transfer fails OR wrong number called
 
 ---
 
-### Scenario 5: Warm Transfer Request
+### TEST 5: Knowledge Base - Service Area Questions
 
-**Test ID:** INBOUND-005  
-**Priority:** High  
-**Assistant:** Inbound  
-**Expected Duration:** 1-2 minutes
+**Objective:** Verify AI answers service area questions accurately with specific town names
 
-#### Test Steps
+#### Test Questions & Expected Answers
 
-1. **Conversation Flow**
-   ```
-   You: "I'd like to speak with the owner about pricing"
-   AI: [Should offer warm transfer to Scott]
-   
-   You: "Yes, please transfer me"
-   AI: [Should initiate warm transfer]
-   ```
-
-2. **Verification Steps**
-   - [ ] Warm transfer function called
-   - [ ] Call transferred to correct number (971-712-6763)
-   - [ ] Transfer context provided
-   - [ ] Call summary notes transfer
+| Question | Expected Answer | Pass Criteria |
+|----------|----------------|---------------|
+| "Do you service Salem?" | Yes, full Salem coverage including West Salem (all zip codes) | ✅ Confirms full Salem coverage |
+| "Do you work in Keizer?" | Yes, Keizer (North Salem) is covered | ✅ Confirms Keizer coverage |
+| "Do you service West Salem?" | Yes, full Salem coverage including West Salem | ✅ Confirms West Salem |
+| "Do you service Independence?" | Yes, Independence is in our service area | ✅ Confirms West area coverage |
+| "Do you service Monmouth or Dallas?" | Yes, both Monmouth and Dallas are covered | ✅ Confirms multiple west towns |
+| "Do you work in McMinnville?" | Yes, McMinnville is covered | ✅ Confirms north area |
+| "Do you service Newberg or Woodburn?" | Yes, both Newberg and Woodburn are covered | ✅ Confirms north towns |
+| "Do you work in Silverton or Stayton?" | Yes, both Silverton and Stayton are covered | ✅ Confirms east area |
+| "Do you service Portland?" | Extended area 35-42 miles north, case-by-case basis (we keep Portland due to 1,400-1,800 accounts from 2019) | ✅ Explains extended area with context |
+| "Do you work in Eugene or Corvallis?" | Case-by-case based on project size and commute costs | ✅ Mentions case-by-case with project size |
+| "Do you service Albany?" | Case-by-case, depends on project size | ✅ Mentions case-by-case |
+| "What's your service radius?" | 20-25 mile radius from Salem, but extended to 35-42 miles north for Portland area | ✅ States primary and extended radius |
 
 #### Pass Criteria
-- ✅ Transfer initiated successfully
-   - ✅ Correct staff member called
-   - ✅ Context passed to staff
+✅ **PASS** if 10/12 questions answered correctly  
+❌ **FAIL** if 3+ questions answered incorrectly
 
 ---
 
-### Scenario 6: Knowledge Base Testing
+### TEST 6: Knowledge Base - Service Types & Equipment
 
-**Test ID:** INBOUND-006  
-**Priority:** High  
-**Assistant:** Inbound  
-**Expected Duration:** 5-7 minutes
+**Objective:** Verify AI knows exactly what services are offered and what's NOT offered
 
-#### Test Questions
+#### Test Questions & Expected Answers
 
-| Question | Expected Response | Status | Notes |
-|----------|-------------------|--------|-------|
-| "Do you service Portland?" | ✅ Explains extended area (35-42 miles, case-by-case) | ⬜ | ⬜ |
-| "What are your hours?" | ✅ 24/7 AI, 7 AM-8:30 PM human, 8 AM-4:30 PM field | ⬜ | ⬜ |
-| "Do you work on boilers?" | ✅ No, but can fit ducted/ductless and sub out removal | ⬜ | ⬜ |
-| "How much is a diagnostic?" | ✅ $190 residential, $240 commercial (may vary) | ⬜ | ⬜ |
-| "Do you offer discounts for veterans?" | ✅ Yes, ~10% Veteran Appreciation program | ⬜ | ⬜ |
-| "What makes you different?" | ✅ Uses brand voice words (trusted, quality, professional) | ⬜ | ⬜ |
-| "Do you service West Salem?" | ✅ Yes, full Salem coverage including West Salem | ⬜ | ⬜ |
-| "Can you come on weekends?" | ✅ Case-by-case for emergencies affecting health | ⬜ | ⬜ |
+| Question | Expected Answer | Pass Criteria |
+|----------|----------------|---------------|
+| "Do you fix furnaces?" | Yes, we service all residential whole home ducted, split home ducted, and ductless systems | ✅ Confirms residential furnace service |
+| "Do you install ductless systems?" | Yes, we install ductless systems for residential | ✅ Confirms ductless |
+| "Do you work on boilers?" | No, we don't service boilers, but we can fit ducted/ductless systems and abandon or sub out boiler removal | ✅ Correctly says no, explains alternative |
+| "Do you service geothermal systems?" | No, we don't service geothermal systems | ✅ Correctly says no |
+| "Do you work on radiant systems?" | No, we don't service radiant systems | ✅ Correctly says no |
+| "Do you service hydro or steam systems?" | No, we don't service hydro or steam systems | ✅ Correctly says no |
+| "Do you do commercial work?" | Yes, we service commercial wall hung or roof mounted packaged unit air controlled systems | ✅ Confirms commercial with specific types |
+| "What types of residential systems do you work on?" | Whole home ducted, split home ducted, and ductless systems | ✅ Lists all residential types |
+| "Can you install a new system if I have a boiler?" | Yes, we can fit a ducted or ductless system and sub out the boiler removal | ✅ Explains alternative service |
 
 #### Pass Criteria
-- ✅ All questions answered accurately
-- ✅ Uses knowledge base information
-- ✅ Maintains brand voice
+✅ **PASS** if 8/9 questions answered correctly  
+❌ **FAIL** if 2+ questions answered incorrectly
 
 ---
 
-### Scenario 7: Out of Service Area
+### TEST 7: Knowledge Base - Pricing & Hours
 
-**Test ID:** INBOUND-007  
-**Priority:** Medium  
-**Assistant:** Inbound  
-**Expected Duration:** 2-3 minutes
+**Objective:** Verify AI provides accurate pricing, hours, and appointment duration information
 
-#### Test Steps
+#### Test Questions & Expected Answers
 
-1. **Conversation Flow**
-   ```
-   You: "I'm in Eugene, can you come out?"
-   AI: [Should explain extended area policy, case-by-case]
-   
-   You: "It's a large installation project"
-   AI: [Should offer to check availability]
-   ```
-
-2. **Verification Steps**
-   - [ ] Service area policy explained
-   - [ ] Case-by-case basis mentioned
-   - [ ] Lead still captured in GHL
+| Question | Expected Answer | Pass Criteria |
+|----------|----------------|---------------|
+| "How much is a diagnostic?" | $190 residential, $240 commercial (prices may be reduced to stay competitive) | ✅ Gives correct base prices with note about potential reduction |
+| "What are your hours?" | 24/7 AI for calls, 7 AM-8:30 PM for human-answered phones, 8 AM-4:30 PM for field/site work | ✅ States all three timeframes accurately |
+| "Do you work weekends?" | Case-by-case for emergencies affecting health - typically reserved for hot/cold storms, people with infants, and senior citizens | ✅ Explains weekend policy with health threat priority |
+| "How much for emergency or weekend service?" | Case-by-case, no static pricing - determined by company operational costs, customer circumstances, and weather conditions | ✅ Explains case-by-case with factors |
+| "What's the price range for a new furnace?" | $4,900-$7,900 for base level furnace or air handler (rough estimate, on-site assessment needed) | ✅ Gives correct range, emphasizes on-site |
+| "How much for a new AC or heat pump?" | $6,200-$9,400 (rough estimate, on-site assessment needed) | ✅ Gives correct range |
+| "What's the price for a full system replacement?" | $9,800-$17,500+ depending on scope and equipment size (on-site assessment required) | ✅ Gives correct range |
+| "How long is a diagnostic appointment?" | 20-30 minutes actual work, scheduled for up to 1 hour block | ✅ States duration correctly |
+| "How long is an estimate visit?" | 20-50 minutes, varies by project scope | ✅ States duration range |
+| "How long does an installation take?" | 2.5-4 hours for simple, up to 2-3 full days for complex systems | ✅ States duration range |
+| "What about out of service area pricing?" | Additional $50-$110 based on distance, road type, and parts availability | ✅ States out-of-area pricing range |
 
 #### Pass Criteria
-- ✅ Handles out-of-area gracefully
-- ✅ Explains policy correctly
+✅ **PASS** if 9/11 questions answered correctly  
+❌ **FAIL** if 3+ questions answered incorrectly
 
 ---
 
-### Scenario 8: Appointment Change/Reschedule
+### TEST 8: Knowledge Base - Discounts & Brand Voice
 
-**Test ID:** INBOUND-008  
-**Priority:** Medium  
-**Assistant:** Inbound  
-**Expected Duration:** 2-3 minutes
+**Objective:** Verify AI knows all discount programs and uses correct brand voice
 
-#### Test Steps
+#### Test Questions & Expected Answers
 
-1. **Conversation Flow**
-   ```
-   You: "I need to reschedule my appointment for tomorrow"
-   AI: [Should ask for appointment details and new time]
-   
-   You: "Can we move it to next week instead?"
-   AI: [Should check calendar and reschedule]
-   ```
-
-2. **Verification Steps**
-   - [ ] Original appointment identified
-   - [ ] New appointment scheduled
-   - [ ] Old appointment cancelled/updated
-   - [ ] Confirmation sent
+| Question | Expected Answer | Pass Criteria |
+|----------|----------------|---------------|
+| "Do you offer veteran discounts?" | Yes, ~10% Veteran Appreciation program (discount applies to products/materials, may not fully apply to labor) | ✅ Confirms veteran discount with details |
+| "Do seniors get a discount?" | Yes, ~10% Senior Community Member savings | ✅ Confirms senior discount |
+| "Do you have educator discounts?" | Yes, ~10% Educator Thanks program | ✅ Confirms educator discount |
+| "Do first responders get a discount?" | Yes, ~10% First Responder Recognition program | ✅ Confirms first responder discount |
+| "Can I stack multiple discounts?" | Yes, combined stacking: 2 tiers = ~14%, 3 tiers = up to 16% maximum savings | ✅ Explains stacking policy |
+| "What makes you different?" | Uses words: consultation, complimentary, inclusive, thorough, diligent, trusted, proposal, quality | ✅ Uses brand voice words |
+| "Are your services free?" | Avoids word "free", uses "complimentary" or "inclusive" | ✅ Avoids prohibited words |
+| "Are your prices cheap?" | Avoids "cheap", uses "quality", "trusted", "professional" | ✅ Avoids prohibited words |
+| "Can you just give me a quote over the phone?" | AI pushes back, explains why on-site assessment is essential for accurate pricing | ✅ Pushes back professionally |
+| "Can you install parts I buy separately?" | AI avoids this, explains why professional installation is recommended | ✅ Handles appropriately |
 
 #### Pass Criteria
-- ✅ Reschedule handled correctly
-- ✅ Calendar updated accurately
+✅ **PASS** if 8/10 questions answered correctly AND avoids prohibited words  
+❌ **FAIL** if uses "free", "cheap", or "low cost" inappropriately OR doesn't push back on phone quotes
 
 ---
 
-## 📲 Outbound Call Scenarios
+### TEST 9: Outbound Call - New Lead from Various Sources
 
-### Scenario 1: New Lead from Form Submission
+**Objective:** Verify outbound calls are made automatically for new leads from all sources
 
-**Test ID:** OUTBOUND-001  
-**Priority:** High  
-**Assistant:** Outbound  
-**Trigger:** GHL webhook - `contact.created`
+#### Step 1: Create Test Leads from Multiple Sources
+- Create contact manually in CRM (simulates manual entry)
+- Submit contact via website form
+- Convert contact via web chat
+- Submit contact via Google or Facebook ad
+- Create contact with "yelp" tag
+- Create contact with "website" tag
 
-#### Test Steps
+#### Step 2: Expected Behavior by Lead Source
 
-1. **Trigger Lead Creation**
-   - Create test contact in GHL via API or dashboard
-   - Webhook should trigger outbound call
+| Lead Source | Expected Behavior | Pass Criteria |
+|-------------|-------------------|---------------|
+| Manual Entry | Outbound call within 1 minute | ✅ Call initiated |
+| Form Submission | Outbound call triggered | ✅ Call initiated |
+| Web Chat | Outbound call triggered, lead source recorded | ✅ Call + source recorded |
+| Google Ad | Outbound call triggered, lead source recorded | ✅ Call + source recorded |
+| Meta/Facebook Ad | Outbound call triggered, lead source recorded | ✅ Call + source recorded |
+| Website (with tag) | Outbound call triggered, source identified from tag | ✅ Call + source from tag |
+| Yelp (with tag) | Outbound call triggered, source identified from tag | ✅ Call + source from tag |
+| Thumbtack (with tag) | Outbound call triggered, source identified from tag | ✅ Call + source from tag |
 
-2. **Expected Call Flow**
-   ```
-   AI: "Hi, this is [name] from Scott Valley HVAC. I'm calling because you 
-        recently requested information about our heating and cooling services. 
-        Is now a good time to talk for a few minutes?"
-   
-   [If busy]
-   You: "I'm busy right now"
-   AI: [Should offer callback scheduling]
-   
-   [If available]
-   You: "Yes, I have a few minutes"
-   AI: [Should qualify lead and offer appointment]
-   ```
+#### Step 3: Test Questions During Call
 
-3. **Verification Steps**
-   - [ ] Outbound call initiated within 1 minute of lead creation
-   - [ ] Contact information used correctly
-   - [ ] Call logged in GHL
-   - [ ] If no answer, SMS fallback triggered (after 30 seconds)
+| Question | Expected Answer | Pass Criteria |
+|----------|----------------|---------------|
+| AI greeting | "Hi [Name], this is [AI name] from Scott Valley HVAC. I'm calling because you recently requested information..." | ✅ Professional, mentions inquiry |
+| "Is now a good time?" | AI respects if busy, offers callback | ✅ Handles busy appropriately |
+| Lead qualification | AI asks about HVAC needs (heating, cooling, repair, installation) | ✅ Qualifies lead |
+| Appointment offer | AI offers to schedule if interested | ✅ Offers appointment |
+
+#### Step 4: Verification Checklist
+
+- [ ] System received new lead notification for each source
+- [ ] Outbound call initiated automatically within 1 minute
+- [ ] Contact record shows that call was attempted
+- [ ] Lead source correctly recorded in customer record:
+  - [ ] Form submission shows as "form" source
+  - [ ] Web chat shows as "webchat" source
+  - [ ] Google ad shows as "google_ads" source
+  - [ ] Meta/Facebook ad shows as "meta_ads" or "facebook_ads" source
+  - [ ] Website tag shows as "website" source
+  - [ ] Yelp tag shows as "yelp" source
+  - [ ] Thumbtack tag shows as "thumbtack" source
+- [ ] Call ID recorded in customer record
+- [ ] Call activity logged in customer timeline
+- [ ] If call not answered, text message sent automatically (after 45 seconds)
 
 #### Pass Criteria
-- ✅ Call initiated automatically
-- ✅ Lead qualified correctly
-- ✅ Appointment offered if interested
+✅ **PASS** if call initiated for all sources AND lead source recorded correctly in customer record  
+❌ **FAIL** if any source doesn't trigger call OR source not recorded
 
 ---
 
-### Scenario 2: SMS Fallback (No Answer)
+### TEST 9A: Duplicate Call Prevention
 
-**Test ID:** OUTBOUND-002  
-**Priority:** High  
-**Assistant:** Outbound  
-**Trigger:** Call not answered or failed
+**Objective:** Verify system prevents duplicate calls to same contact
 
-#### Test Steps
+#### Step 1: Setup
+- Create contact in CRM
+- Mark contact as "already called" in system
+- Create another lead entry for same contact
 
-1. **Setup**
-   - Create lead in GHL
-   - Ensure phone number is valid but won't answer
-   - Wait for call attempt
+#### Step 2: Expected Behavior
 
-2. **Expected Behavior**
-   - Call attempted
-   - After 30 seconds, system checks call status
-   - If failed/no answer, SMS sent automatically
-   - SMS includes: "Hi [Name], this is Scott Valley HVAC. We tried calling you about your HVAC inquiry. When's a good time to reach you? Reply STOP to opt out."
-
-3. **Verification Steps**
-   - [ ] SMS fallback triggered after call failure
-   - [ ] SMS consent checked before sending
-   - [ ] Custom fields updated: `sms_fallback_sent`, `sms_fallback_date`, `sms_fallback_reason`
-   - [ ] SMS delivered successfully
+| Checkpoint | Expected | Pass Criteria |
+|------------|----------|---------------|
+| System receives lead | Within 5 seconds | ✅ Lead received |
+| System checks history | System checks if contact was already called | ✅ History checked |
+| Call skipped | No outbound call initiated | ✅ Call NOT made |
+| System response | System recognizes duplicate and skips | ✅ Handled correctly |
 
 #### Pass Criteria
-- ✅ SMS sent automatically on call failure
-- ✅ Consent respected
-- ✅ Fields updated correctly
+✅ **PASS** if call is NOT initiated when contact was already called  
+❌ **FAIL** if duplicate call is made
 
 ---
 
-### Scenario 3: Web Chat Conversion
+### TEST 9B: Missing Phone Number Handling
 
-**Test ID:** OUTBOUND-003  
-**Priority:** Medium  
-**Assistant:** Outbound  
-**Trigger:** GHL webhook - `webchat.converted`
+**Objective:** Verify graceful handling when contact has no phone number
 
-#### Test Steps
+#### Step 1: Setup
+- Create contact in CRM WITHOUT phone number
+- System attempts to process lead
 
-1. **Trigger**
-   - Convert web chat to lead in GHL
-   - Webhook should trigger outbound call
+#### Step 2: Expected Behavior
 
-2. **Verification Steps**
-   - [ ] Call initiated
-   - [ ] Lead source tagged as "web_chat"
-   - [ ] Context from chat available
+| Checkpoint | Expected | Pass Criteria |
+|------------|----------|---------------|
+| System receives lead | Within 5 seconds | ✅ Lead received |
+| Phone check | System attempts to find phone number | ✅ Phone check performed |
+| Call skipped | No outbound call initiated | ✅ Call NOT made |
+| System response | System handles missing phone gracefully | ✅ Error handled properly |
+| System continues | System continues processing other leads | ✅ No system errors |
 
 #### Pass Criteria
-- ✅ Call triggered correctly
-- ✅ Lead source accurate
+✅ **PASS** if call is NOT initiated AND error logged gracefully  
+❌ **FAIL** if system crashes OR call attempted without phone
 
 ---
 
-### Scenario 4: Google/Meta Ad Lead
+### TEST 9C: Invalid Phone Number Handling
 
-**Test ID:** OUTBOUND-004  
-**Priority:** Medium  
-**Assistant:** Outbound  
-**Trigger:** GHL webhook - `ad.submission` or `google.lead` or `meta.lead`
+**Objective:** Verify validation works for invalid phone formats
 
-#### Test Steps
+#### Step 1: Setup
+- Create contact with invalid phone: "123" or "abc"
+- System attempts to process lead
 
-1. **Trigger**
-   - Simulate ad lead submission
-   - Webhook should trigger outbound call
+#### Step 2: Expected Behavior
 
-2. **Verification Steps**
-   - [ ] Call initiated
-   - [ ] Lead source tagged correctly
-   - [ ] Ad campaign data captured
+| Checkpoint | Expected | Pass Criteria |
+|------------|----------|---------------|
+| System receives lead | Within 5 seconds | ✅ Lead received |
+| Phone validation | System validates phone format | ✅ Validation performed |
+| Call skipped | No outbound call initiated | ✅ Call NOT made |
+| System response | System recognizes invalid format | ✅ Error handled properly |
+| System continues | System continues processing other leads | ✅ No system errors |
 
 #### Pass Criteria
-- ✅ Call triggered
-- ✅ Lead source accurate
+✅ **PASS** if call is NOT initiated AND validation error logged  
+❌ **FAIL** if invalid phone accepted OR system crashes
 
 ---
 
-## 🔗 Integration Tests
+### TEST 9D: Lead Source Identification from Tags
 
-### Test 1: GHL Webhook Reception
+**Objective:** Verify lead source is identified from contact tags
 
-**Test ID:** INT-001  
-**Priority:** Critical
+#### Step 1: Setup
+- Create contact in CRM with tag "yelp"
+- System processes lead
 
-#### Test Steps
+#### Step 2: Expected Behavior
 
-1. **Send Test Webhook**
-   ```bash
-   curl -X POST http://localhost:8000/webhooks/ghl \
-     -H "Content-Type: application/json" \
-     -H "X-GHL-Signature: [signature]" \
-     -d '{
-       "type": "contact.created",
-       "contactId": "test123",
-       "locationId": "NHEXwG3xQVwKMO77jAuB"
-     }'
-   ```
+| Checkpoint | Expected | Pass Criteria |
+|------------|----------|---------------|
+| System receives lead | Within 5 seconds | ✅ Lead received |
+| Tag check | System reads contact tags | ✅ Tags accessed |
+| Lead source identified | Source identified as "yelp" | ✅ Source from tag |
+| Call initiated | Outbound call made | ✅ Call initiated |
+| Lead source saved | Source "yelp" saved to customer record | ✅ Saved to CRM |
 
-2. **Verification Steps**
-   - [ ] Webhook received (200 OK)
-   - [ ] Signature verified (if configured)
-   - [ ] Event processed correctly
-   - [ ] Appropriate action taken (call initiated, etc.)
+#### Step 3: Repeat for Other Tags
+- Test with tag "website" → should identify as "website" source
+- Test with tag "thumbtack" → should identify as "thumbtack" source
+- Test with tag "google" → should identify as "google_ads" source
 
 #### Pass Criteria
-- ✅ Webhook endpoint responds
-- ✅ Signature verification works
-- ✅ Events processed correctly
+✅ **PASS** if lead source identified from tags AND saved to customer record  
+❌ **FAIL** if tag not detected OR source not saved
 
 ---
 
-### Test 2: Vapi → GHL Data Sync
+### TEST 10: SMS Fallback - Unanswered Call
 
-**Test ID:** INT-002  
-**Priority:** Critical
+**Objective:** Verify SMS sent automatically when call not answered
 
-#### Test Steps
+#### Step 1: Setup
+- Create lead with valid phone number
+- Ensure phone won't answer (or let it ring out)
 
-1. **Make Test Call**
-   - Complete an inbound call with appointment booking
+#### Step 2: Expected Behavior
 
-2. **Verification Steps**
-   - [ ] Contact created/updated in GHL
-   - [ ] Appointment appears in GHL calendar
-   - [ ] Custom fields populated:
-     - `contact.ai_call_summary`
-     - `contact.call_transcript_url`
-     - `contact.call_duration`
-     - `contact.call_type`
-     - `contact.call_outcome`
-     - `contact.lead_quality_score`
-     - `contact.equipment_type_tags`
-   - [ ] Timeline entry created
+| Checkpoint | Expected | Pass Criteria |
+|------------|----------|---------------|
+| Call attempted | Within 1 minute of lead creation | ✅ Call initiated |
+| Call status check | After 45 seconds | ✅ System checks status |
+| Text sent | If call failed/no answer | ✅ Text sent automatically |
+| Text content | Personalized with first name, company info | ✅ Professional message |
+| Record updated | System records that text was sent, date, reason | ✅ Record updated |
+
+#### Step 3: Verification Checklist
+
+- [ ] Call attempted
+- [ ] Call status detected as failed/no-answer
+- [ ] Text message sent automatically (if customer consented)
+- [ ] Text includes: "Hi [Name], this is Scott Valley HVAC..."
+- [ ] Customer record shows: text sent, date, reason
 
 #### Pass Criteria
-- ✅ All data synced correctly
-- ✅ Custom fields populated
-- ✅ Timeline updated
+✅ **PASS** if text sent automatically after call failure AND record updated  
+❌ **FAIL** if text not sent OR consent not checked
 
 ---
 
-### Test 3: Twilio Warm Transfer
+### TEST 11: Calendar Availability Check
 
-**Test ID:** INT-003  
-**Priority:** High
+**Objective:** Verify AI checks calendar correctly and uses correct appointment types
 
-#### Test Steps
+#### Step 1: Initiate Call
 
-1. **Initiate Transfer**
-   - During call, request warm transfer
+#### Step 2: Test Questions & Expected Answers
 
-2. **Verification Steps**
-   - [ ] Transfer initiated via Twilio
-   - [ ] Staff member receives call
-   - [ ] Call context maintained
-   - [ ] Transfer logged in GHL
+| Question | Expected Answer | Pass Criteria |
+|----------|----------------|---------------|
+| "When are you available?" | AI checks business hours first, then calendar | ✅ Checks business hours tool first |
+| "Can I schedule for tomorrow?" | AI checks calendar, shows available slots (8 AM - 4:30 PM) | ✅ Shows actual availability |
+| "What times do you have next week?" | AI shows multiple available time slots | ✅ Shows multiple options |
+| "I need a repair appointment" | AI uses Diagnostic calendar, schedules 60-minute block | ✅ Correct calendar, correct duration |
+| "I need an estimate" | AI uses Proposal calendar, schedules 30-60 minute block | ✅ Correct calendar, correct duration |
+| "I need maintenance service" | AI uses appropriate calendar (Diagnostic or Maintenance) | ✅ Correct calendar for maintenance |
+| "I need an installation" | AI uses Proposal calendar for consultation | ✅ Correct calendar for installation |
+| "Can I schedule for Saturday?" | AI explains weekend policy (case-by-case for emergencies) | ✅ Handles weekend request appropriately |
+
+#### Step 3: Verification Checklist
+
+- [ ] AI checks business hours before showing availability
+- [ ] Correct calendar type selected:
+  - [ ] Service calendar for repairs/service calls
+  - [ ] Estimate calendar for estimates/installations
+  - [ ] Maintenance calendar for maintenance (if exists)
+- [ ] Available slots shown (8 AM - 4:30 PM, Monday-Friday)
+- [ ] No appointments offered outside business hours
+- [ ] Appointment duration appropriate:
+  - [ ] 60 minutes for service/diagnostic
+  - [ ] 30-60 minutes for estimates
 
 #### Pass Criteria
-- ✅ Transfer successful
-- ✅ Staff receives call
-- ✅ Context passed
+✅ **PASS** if business hours checked first AND correct calendar/duration used  
+❌ **FAIL** if wrong calendar OR appointments outside hours OR wrong duration
 
 ---
 
-## 📚 Knowledge Base Tests
+### TEST 12: Data Capture Accuracy
 
-### Test Suite: Business Information Accuracy
+**Objective:** Verify all contact information captured correctly
 
-| Question Category | Test Question | Expected Answer | Status | Notes |
-|-------------------|---------------|-----------------|--------|-------|
-| Service Area | "Do you service Keizer?" | ✅ Yes, full coverage | ⬜ | ⬜ |
-| Service Area | "Do you work in Portland?" | ✅ Extended area, case-by-case | ⬜ | ⬜ |
-| Service Types | "Do you fix boilers?" | ✅ No, but can sub out removal | ⬜ | ⬜ |
-| Service Types | "Do you install ductless systems?" | ✅ Yes | ⬜ | ⬜ |
-| Pricing | "How much for a diagnostic?" | ✅ $190 residential, $240 commercial | ⬜ | ⬜ |
-| Pricing | "Can you quote over the phone?" | ✅ No, explains on-site need | ⬜ | ⬜ |
-| Hours | "What are your hours?" | ✅ 24/7 AI, 7 AM-8:30 PM human | ⬜ | ⬜ |
-| Discounts | "Veteran discount?" | ✅ Yes, ~10% Veteran Appreciation | ⬜ | ⬜ |
-| Emergency | "Weekend service available?" | ✅ Case-by-case for health threats | ⬜ | ⬜ |
+#### Step 1: Complete Full Call
+- Provide: name, phone, email, address, ZIP, SMS consent
 
-#### Pass Criteria
-- ✅ 90%+ accuracy on knowledge base questions
-- ✅ Uses brand voice consistently
-- ✅ Avoids prohibited words (free, cheap, low cost)
+#### Step 2: Verification Checklist
 
----
-
-## 💾 Data Capture & CRM Tests
-
-### Test 1: Contact Creation Accuracy
-
-**Test ID:** DATA-001  
-**Priority:** Critical
-
-#### Test Data
-
-| Field | Test Value | Captured? | Accuracy |
-|-------|------------|-----------|----------|
+| Field | Test Value | Captured? | Format Correct? |
+|-------|------------|-----------|----------------|
 | Full Name | "John Smith" | ⬜ | ⬜ |
-| Phone | "+15035550101" | ⬜ | ⬜ |
-| Email | "john@test.com" | ⬜ | ⬜ |
-| Address | "123 Main St, Salem, OR 97301" | ⬜ | ⬜ |
-| ZIP Code | "97301" | ⬜ | ⬜ |
-| SMS Consent | `true` | ⬜ | ⬜ |
+| Phone | "+15035550101" | ⬜ | E.164 format ⬜ |
+| Email | "john@test.com" | ⬜ | Valid format ⬜ |
+| Address | "123 Main St, Salem, OR 97301" | ⬜ | Complete ⬜ |
+| ZIP Code | "97301" | ⬜ | Extracted ⬜ |
+| SMS Consent | `true` | ⬜ | Boolean ⬜ |
+
+#### Step 3: CRM Verification
+- [ ] Contact created in CRM
+- [ ] All fields populated correctly
+- [ ] Phone number formatted correctly
+- [ ] Email address valid
+- [ ] ZIP code extracted from address
 
 #### Pass Criteria
-- ✅ All fields captured accurately
-- ✅ Phone in E.164 format
-- ✅ Email validated
-- ✅ ZIP code extracted
+✅ **PASS** if all 6 fields captured correctly AND format correct  
+❌ **FAIL** if any field missing OR format incorrect
 
 ---
 
-### Test 2: Custom Fields Population
+### TEST 13: Customer Record Data Population
 
-**Test ID:** DATA-002  
-**Priority:** High
+**Objective:** Verify all customer information saved correctly after call
 
 #### Verification Checklist
 
-- [ ] `contact.ai_call_summary` - Contains AI-generated summary
-- [ ] `contact.call_transcript_url` - URL to transcript
-- [ ] `contact.sms_consent` - Boolean value
-- [ ] `contact.lead_quality_score` - Numeric score (0-100)
-- [ ] `contact.equipment_type_tags` - Array of tags
-- [ ] `contact.call_duration` - Duration in seconds
-- [ ] `contact.call_type` - Classification (service_repair, etc.)
-- [ ] `contact.call_outcome` - Outcome (booked, transferred, etc.)
-- [ ] `contact.vapi_called` - Boolean
-- [ ] `contact.vapi_call_id` - Call ID from Vapi
-- [ ] `contact.lead_source` - Source (inbound, form, ad, etc.)
-- [ ] `contact.sms_fallback_sent` - Boolean
-- [ ] `contact.sms_fallback_date` - Date timestamp
-- [ ] `contact.sms_fallback_reason` - Reason text
+| Information Type | Expected Value | Saved? | Correct? |
+|-----------------|----------------|--------|----------|
+| Call Summary | AI-generated summary of conversation | ⬜ | ⬜ |
+| Call Recording | Link to call recording/transcript | ⬜ | ⬜ |
+| Text Consent | Yes or No | ⬜ | ⬜ |
+| Lead Quality | Quality score (0-100) | ⬜ | ⬜ |
+| Equipment Type | Equipment mentioned during call | ⬜ | ⬜ |
+| Call Duration | Length of call | ⬜ | ⬜ |
+| Call Type | Service, installation, estimate, etc. | ⬜ | ⬜ |
+| Call Outcome | Booked, transferred, no booking | ⬜ | ⬜ |
+| Outbound Call Flag | Marked if outbound call was made | ⬜ | ⬜ |
+| Call ID | Unique call identifier | ⬜ | ⬜ |
+| Lead Source | Where lead came from (form, ad, etc.) | ⬜ | ⬜ |
+| Text Fallback Sent | Yes if text was sent | ⬜ | ⬜ |
+| Text Fallback Date | Date text was sent | ⬜ | ⬜ |
+| Text Fallback Reason | Why text was sent | ⬜ | ⬜ |
 
 #### Pass Criteria
-- ✅ All 14 custom fields populated when applicable
-- ✅ Data types correct
-- ✅ Values accurate
+✅ **PASS** if 12/14 data points saved correctly  
+❌ **FAIL** if 3+ data points missing or incorrect
 
 ---
 
-### Test 3: Lead Quality Scoring
+### TEST 14: Appointment Booking Accuracy
 
-**Test ID:** DATA-003  
-**Priority:** Medium
+**Objective:** Verify appointments booked correctly in GHL
 
-#### Test Cases
+#### Step 1: Book Appointment via Call
+- Complete call and book appointment
 
-| Scenario | Expected Score Range | Actual | Status |
-|----------|---------------------|--------|--------|
-| Emergency with health threat | 85-100 | ⬜ | ⬜ |
-| Complete info + appointment booked | 70-85 | ⬜ | ⬜ |
-| Partial info, no booking | 40-60 | ⬜ | ⬜ |
-| Out of service area | 20-40 | ⬜ | ⬜ |
-| No answer, no contact | 0-20 | ⬜ | ⬜ |
+#### Step 2: Verification Checklist
+
+- [ ] Appointment appears in calendar
+- [ ] Correct calendar type used (Service or Estimate)
+- [ ] Date and time correct
+- [ ] Customer linked to appointment
+- [ ] Service type correct
+- [ ] Urgency level set (if emergency)
+- [ ] Notes included (if customer provided details)
+- [ ] Duration appropriate (60 min for service, 30-60 min for estimate)
 
 #### Pass Criteria
-- ✅ Scores calculated correctly
-- ✅ Reflects lead quality accurately
+✅ **PASS** if appointment appears in calendar AND all details correct  
+❌ **FAIL** if appointment missing OR wrong calendar/details
 
 ---
 
-## ⚠️ Error Handling & Edge Cases
+### TEST 15: Error Handling - Invalid Phone Number
 
-### Test 1: Invalid Phone Number
+**Objective:** Verify graceful error handling
 
-**Test ID:** EDGE-001  
-**Priority:** Medium
+#### Step 1: Test Invalid Inputs
 
-#### Test Steps
-- Attempt to create contact with invalid phone
-- Expected: Error handled gracefully, user asked to provide correct number
+| Input | Expected Behavior | Pass Criteria |
+|-------|-------------------|---------------|
+| Invalid phone: "123" | AI asks for correct phone number | ✅ Error handled gracefully |
+| Invalid email: "notanemail" | AI asks for valid email | ✅ Validation works |
+| Out of service area: "Portland, OR" | AI explains extended area policy | ✅ Handles gracefully |
+| No calendar availability | AI offers extended dates or callback | ✅ Offers alternatives |
 
 #### Pass Criteria
-- ✅ Error caught
-- ✅ User-friendly message
-- ✅ No system crash
+✅ **PASS** if all errors handled gracefully AND no system crash  
+❌ **FAIL** if system crashes OR unhelpful error message
 
 ---
 
-### Test 2: Calendar Unavailable
+### TEST 16: System Integration - Lead Processing
 
-**Test ID:** EDGE-002  
-**Priority:** Medium
+**Objective:** Verify system receives and processes new leads correctly
 
-#### Test Steps
-- Request appointment when calendar has no availability
-- Expected: AI offers extended dates or callback option
+#### Step 1: Create Test Lead
+- Create a new contact through any channel (form, chat, manual entry, etc.)
+
+#### Step 2: Verification Checklist
+
+- [ ] System received new lead notification
+- [ ] Lead information processed correctly
+- [ ] Lead type identified correctly
+- [ ] Contact information extracted
+- [ ] Location verified
+- [ ] Appropriate action taken (call initiated, etc.)
 
 #### Pass Criteria
-- ✅ Handles gracefully
-- ✅ Offers alternatives
+✅ **PASS** if lead received AND processed correctly  
+❌ **FAIL** if lead not processed OR action not taken
 
 ---
 
-### Test 3: API Failure
+### TEST 17: Performance - Call Response Time
 
-**Test ID:** EDGE-003  
-**Priority:** High
+**Objective:** Verify system responds quickly
 
-#### Test Steps
-- Simulate GHL API failure during appointment booking
-- Expected: Error logged, user informed, retry option
+#### Metrics to Check
+
+| Metric | Target | Actual | Pass Criteria |
+|--------|--------|--------|---------------|
+| Time to answer | < 3 seconds | ⬜ | ✅ |
+| System response time | < 2 seconds | ⬜ | ✅ |
+| Database response | < 1 second | ⬜ | ✅ |
+| Total call setup | < 5 seconds | ⬜ | ✅ |
 
 #### Pass Criteria
-- ✅ Error logged
-- ✅ User informed
-- ✅ System recovers
+✅ **PASS** if all metrics within targets  
+❌ **FAIL** if any metric exceeds target by 50%+
 
 ---
 
-### Test 4: Webhook Signature Mismatch
+## 📊 Test Execution Summary
 
-**Test ID:** EDGE-004  
-**Priority:** High
-
-#### Test Steps
-- Send webhook with invalid signature
-- Expected: Request rejected (401/403)
-
-#### Pass Criteria
-- ✅ Invalid signature rejected
-- ✅ Valid signature accepted
-
----
-
-## 📊 Performance & Monitoring
-
-### Test 1: Call Response Time
-
-**Test ID:** PERF-001  
-**Priority:** Medium
-
-#### Metrics
-
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Time to answer | < 3 seconds | ⬜ | ⬜ |
-| Function call latency | < 2 seconds | ⬜ | ⬜ |
-| GHL API response | < 1 second | ⬜ | ⬜ |
-| Total call setup | < 5 seconds | ⬜ | ⬜ |
-
-#### Pass Criteria
-- ✅ All metrics within targets
-
----
-
-### Test 2: Monitoring Endpoints
-
-**Test ID:** PERF-002  
-**Priority:** Medium
-
-#### Endpoints to Test
-
-| Endpoint | Expected | Actual | Status |
-|----------|----------|--------|--------|
-| `/monitoring/health` | 200 OK | ⬜ | ⬜ |
-| `/monitoring/metrics/overview` | JSON metrics | ⬜ | ⬜ |
-| `/monitoring/metrics/calls` | Call statistics | ⬜ | ⬜ |
-| `/monitoring/metrics/bookings` | Booking stats | ⬜ | ⬜ |
-| `/monitoring/metrics/leads` | Lead metrics | ⬜ | ⬜ |
-
-#### Pass Criteria
-- ✅ All endpoints respond correctly
-- ✅ Metrics accurate
-
----
-
-## 📝 Test Execution Log
-
-### Test Run Summary
+### Test Run Log
 
 **Date:** _______________  
 **Tester:** _______________  
 **Environment:** Production / Staging / Development
 
-### Results Overview
+### Results
 
-| Category | Total Tests | Passed | Failed | Warnings | Pass Rate |
-|----------|-------------|--------|--------|----------|-----------|
-| Automated Tests | 14 | ⬜ | ⬜ | ⬜ | ⬜ |
-| Inbound Calls | 8 | ⬜ | ⬜ | ⬜ | ⬜ |
-| Outbound Calls | 4 | ⬜ | ⬜ | ⬜ | ⬜ |
-| Integration Tests | 3 | ⬜ | ⬜ | ⬜ | ⬜ |
-| Knowledge Base | 9 | ⬜ | ⬜ | ⬜ | ⬜ |
-| Data Capture | 3 | ⬜ | ⬜ | ⬜ | ⬜ |
-| Error Handling | 4 | ⬜ | ⬜ | ⬜ | ⬜ |
-| Performance | 2 | ⬜ | ⬜ | ⬜ | ⬜ |
-| **TOTAL** | **47** | ⬜ | ⬜ | ⬜ | ⬜ |
+| Test ID | Test Name | Questions | Pass Criteria | Status | Notes |
+|---------|-----------|-----------|---------------|--------|-------|
+| TEST 1 | Inbound - Service/Repair | 7 | All 7 correct + verification | ⬜ | |
+| TEST 2 | Inbound - Installation | 7 | All 7 correct + Proposal calendar | ⬜ | |
+| TEST 3 | Inbound - Emergency | 4 | Emergency recognized + same-day | ⬜ | |
+| TEST 4 | Warm Transfer | 6 | Transfer to correct staff member | ⬜ | |
+| TEST 5 | Knowledge - Service Area | 12 | 10/12 correct | ⬜ | |
+| TEST 6 | Knowledge - Service Types | 9 | 8/9 correct | ⬜ | |
+| TEST 7 | Knowledge - Pricing/Hours | 11 | 9/11 correct | ⬜ | |
+| TEST 8 | Knowledge - Discounts | 10 | 8/10 correct + no prohibited words | ⬜ | |
+| TEST 9 | Outbound - New Lead | Multiple sources | All sources trigger + tagged | ⬜ | |
+| TEST 9A | Duplicate Call Prevention | 1 scenario | Call skipped if already called | ⬜ | **NEW** |
+| TEST 9B | Missing Phone Handling | 1 scenario | Graceful skip, no crash | ⬜ | **NEW** |
+| TEST 9C | Invalid Phone Handling | 1 scenario | Validation error logged | ⬜ | **NEW** |
+| TEST 9D | Lead Source from Tags | 4 tags | Source extracted from tags | ⬜ | **NEW** |
+| TEST 10 | SMS Fallback | Auto-trigger | SMS sent after call failure | ⬜ | |
+| TEST 11 | Calendar Availability | 8 | Business hours + correct calendar | ⬜ | |
+| TEST 12 | Data Capture | 6 fields | All 6 fields correct format | ⬜ | |
+| TEST 13 | Custom Fields | 14 fields | 12/14 populated | ⬜ | |
+| TEST 14 | Appointment Booking | Full booking | Appears in GHL + correct details | ⬜ | |
+| TEST 15 | Error Handling | 4 scenarios | All handled gracefully | ⬜ | |
+| TEST 16 | Webhook Integration | Multiple events | All events processed | ⬜ | |
+| TEST 17 | Performance | 4 metrics | All within targets | ⬜ | |
 
-### Detailed Test Log
+### Summary
 
-| Test ID | Test Name | Status | Notes | Date/Time |
-|---------|-----------|--------|-------|-----------|
-| AUTO-001 | Vapi API Connection | ⬜ | | |
-| AUTO-002 | GHL API Connection | ⬜ | | |
-| ... | ... | ⬜ | | |
+- **Total Tests:** 21 (was 17, added 4 new lead handling tests)
+- **Total Questions:** 120+
+- **Passed:** ⬜
+- **Failed:** ⬜
+- **Pass Rate:** ⬜%
+
+### Recent Improvements
+
+✅ **Improved:** Lead source identification from all sources  
+✅ **Improved:** Lead source identification from contact tags  
+✅ **Added:** Duplicate call prevention testing  
+✅ **Added:** Missing/invalid phone number handling tests  
+✅ **Added:** Lead source tracking verification
 
 ### Issues Found
 
-| Issue ID | Test ID | Severity | Description | Resolution |
-|----------|---------|----------|-------------|------------|
+| Issue | Test ID | Severity | Description | Resolution |
+|-------|---------|----------|-------------|------------|
 | | | | | |
 
 ### Sign-Off
@@ -894,44 +670,4 @@ uv run python scripts/quick_test.py "Test message" --phone +1XXX-XXX-XXXX
 
 ---
 
-## 🎯 Test Execution Commands
-
-### Quick Reference
-
-```bash
-# Set environment
-export VAPI_API_KEY=bee0337d-41cd-49c2-9038-98cd0e18c75b
-
-# Run automated tests
-uv run python scripts/run_automated_tests.py
-
-# Test single scenario
-uv run python scripts/quick_test.py "My furnace isn't working" --phone +1XXX-XXX-XXXX
-
-# Run all scenarios
-uv run python scripts/run_test_scenarios.py --phone +1XXX-XXX-XXXX
-
-# Check call logs
-uv run python scripts/check_call_logs.py --limit 10
-uv run python scripts/check_call_logs.py --call-id [CALL_ID] --tools
-
-# Test webhook
-curl -X POST http://localhost:8000/webhooks/ghl \
-  -H "Content-Type: application/json" \
-  -d '{"type": "contact.created", "contactId": "test123"}'
-```
-
----
-
-## 📌 Notes
-
-- Update status checkboxes (⬜) as tests are completed
-- Use ✅ for pass, ❌ for fail, ⚠️ for warning
-- Document all issues in the Issues Found section
-- Re-test failed scenarios after fixes
-- Keep this document updated with each test run
-
----
-
 **End of Testing Protocol**
-

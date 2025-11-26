@@ -81,7 +81,8 @@ Full Transcript:
             "lead_quality_score": str(lead_score),
             "equipment_type_tags": ",".join(equipment_types) if equipment_types else ""
         }
-        custom_fields_array = build_custom_fields_array(custom_fields_dict)
+        # Build custom fields array - use field IDs for better reliability
+        custom_fields_array = await build_custom_fields_array(custom_fields_dict, use_field_ids=True)
         
         await ghl.update_contact(
             contact_id=request.contact_id,

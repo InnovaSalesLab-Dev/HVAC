@@ -107,9 +107,38 @@ def get_tool_definitions(server_url: str):
                     "urgency": {
                         "type": "string",
                         "enum": ["emergency", "urgent", "standard", "low"]
+                    },
+                    "service_address": {
+                        "type": "string",
+                        "description": "Service address for appointment location"
+                    },
+                    "reschedule_appointment_id": {
+                        "type": "string",
+                        "description": "If rescheduling, the ID of existing appointment to cancel before booking new one"
                     }
                 },
                 "required": ["contact_id", "calendar_id", "start_time", "end_time", "title", "service_type"]
+            }
+        },
+        {
+            "type": "apiRequest",
+            "name": "cancelAppointment",
+            "description": "Cancel an existing appointment in GHL calendar",
+            "url": f"{server_url}/functions/cancel-appointment",
+            "method": "POST",
+            "body": {
+                "type": "object",
+                "properties": {
+                    "contact_id": {
+                        "type": "string",
+                        "description": "Contact ID of the person whose appointment to cancel"
+                    },
+                    "appointment_id": {
+                        "type": "string",
+                        "description": "ID of the appointment to cancel"
+                    }
+                },
+                "required": ["contact_id", "appointment_id"]
             }
         },
         {

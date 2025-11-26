@@ -8,6 +8,17 @@ from src.utils.logging import logger
 class VapiClient:
     def __init__(self):
         self.api_key = settings.vapi_api_key
+        if not self.api_key:
+            logger.error("⚠️  VAPI_API_KEY not configured in environment variables")
+            raise VapiAPIError(
+                "Vapi API key not configured. Please set VAPI_API_KEY in Fly.io secrets.",
+                status_code=500
+            )
+        
+        # Log first 8 chars of key for debugging (without exposing full key)
+        key_preview = self.api_key[:8] + "..." if len(self.api_key) > 8 else self.api_key
+        logger.info(f"🔑 Using Vapi API key: {key_preview} (length: {len(self.api_key)})")
+        
         self.base_url = "https://api.vapi.ai"
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -34,11 +45,29 @@ class VapiClient:
                 response.raise_for_status()
                 return response.json()
         except httpx.HTTPStatusError as e:
-            logger.error(f"Vapi API error: {e.response.status_code} - {e.response.text}")
+            error_text = e.response.text
+            logger.error(f"Vapi API error: {e.response.status_code} - {error_text}")
+            
+            # Provide helpful error message for 401 (invalid API key)
+            if e.response.status_code == 401:
+                logger.error("⚠️  Vapi API key is invalid or missing.")
+                logger.error("   For server-side API calls (creating outbound calls), you need a PRIVATE API key.")
+                logger.error("   Steps to fix:")
+                logger.error("   1. Go to https://dashboard.vapi.ai")
+                logger.error("   2. Navigate to Settings → API Keys")
+                logger.error("   3. Find your PRIVATE API key (not public)")
+                logger.error("   4. Copy the full key")
+                logger.error("   5. Run: flyctl secrets set VAPI_API_KEY=your_private_key -a scott-valley-hvac-api")
+                raise VapiAPIError(
+                    "Vapi API key is invalid. For server-side calls, use your PRIVATE API key from Vapi dashboard. See logs for instructions.",
+                    status_code=401,
+                    details={"response": error_text}
+                )
+            
             raise VapiAPIError(
                 f"Vapi API request failed: {e.response.status_code}",
                 status_code=e.response.status_code,
-                details={"response": e.response.text}
+                details={"response": error_text}
             )
         except httpx.RequestError as e:
             logger.error(f"Vapi API request error: {str(e)}")
