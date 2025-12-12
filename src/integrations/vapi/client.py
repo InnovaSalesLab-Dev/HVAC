@@ -46,7 +46,15 @@ class VapiClient:
                 return response.json()
         except httpx.HTTPStatusError as e:
             error_text = e.response.text
-            logger.error(f"Vapi API error: {e.response.status_code} - {error_text}")
+            # Try to parse JSON error response for better error messages
+            try:
+                error_json = e.response.json()
+                error_message = error_json.get("message", error_text)
+                logger.error(f"Vapi API error: {e.response.status_code} - {error_message}")
+                if "details" in error_json:
+                    logger.error(f"Error details: {error_json.get('details')}")
+            except:
+                logger.error(f"Vapi API error: {e.response.status_code} - {error_text}")
             
             # Provide helpful error message for 401 (invalid API key)
             if e.response.status_code == 401:
@@ -64,8 +72,15 @@ class VapiClient:
                     details={"response": error_text}
                 )
             
+            # Extract error message from response if available
+            try:
+                error_json = e.response.json()
+                error_msg = error_json.get("message", f"Vapi API request failed: {e.response.status_code}")
+            except:
+                error_msg = f"Vapi API request failed: {e.response.status_code}"
+            
             raise VapiAPIError(
-                f"Vapi API request failed: {e.response.status_code}",
+                error_msg,
                 status_code=e.response.status_code,
                 details={"response": error_text}
             )
