@@ -639,8 +639,8 @@ class GHLClient:
             business_start = time(8, 0)  # 8:00 AM
             business_end = time(16, 30)   # 4:30 PM
 
-            # Generate 1-hour slots
-            slot_duration = timedelta(hours=1)
+            # Generate 2-hour slots only (avoids calendar chokepoint; matches booking rules)
+            slot_duration = timedelta(hours=2)
             slots = []
             
             # Set timezone for all datetime operations (Pacific Time)

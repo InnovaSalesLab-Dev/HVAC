@@ -1,0 +1,50 @@
+# service-area.md
+**Canonical service area reference.**  
+Sarah should not recite long city lists unless the caller asks directly; keep answers short.
+
+---
+
+## Primary service radius
+- **Primary coverage:** 20–25 mile radius from:  
+  3353 Belvedere St NW, Salem, OR 97304
+
+## Extended coverage
+- **Extended area:** 35–42 miles north to Portland; south to Eugene/Corvallis  
+- **Extended area policy:** case-by-case depending on project size and schedule
+
+---
+
+## Salem coverage
+- Full Salem coverage including **West Salem**
+- All Salem ZIP codes are covered (caller may ask “Do you cover West Salem?” → Yes)
+
+---
+
+## Surrounding areas commonly served (examples)
+> These are examples to confirm common towns; do not read as a “full list” unless asked.
+
+- Independence
+- Monmouth
+- Dallas
+- Keizer
+- McMinnville
+- Newberg
+- Woodburn
+
+---
+
+## Directional reference list (expanded)
+### West
+- Independence, Monmouth, Dallas, Rickreall, Willamina, Sheridan
+
+### South
+- Jefferson, Millersburg
+
+### East
+- Turner, Aumsville, Sublimity, Stayton, Silverton
+
+### North
+- Keizer, McMinnville, Amity, Dayton, Lafayette, Newberg, Brooks, Gervais, Woodburn, Hubbard
+
+### Extended (case-by-case)
+- Portland, Albany, Eugene, Corvallis

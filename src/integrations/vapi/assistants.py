@@ -170,7 +170,7 @@ async def create_inbound_assistant(
         },
         {
             "name": "initiateWarmTransfer",
-            "description": "Transfer call to human staff member",
+            "description": "Transfer call to human staff member. Use appropriate staff: Service Specialist, Manager, or Scott (owner). See prompt for phone numbers and when to use each.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -284,12 +284,10 @@ DISCOUNT TIERS (Client Recognition Programs):
 - Note: Discounts apply to products/materials, may not fully apply to labor/third-party costs
 
 STAFF DIRECTORY (For Warm Transfers):
-- Scott (CEO/Owner): Main Phone 971-712-6763, Verizon 503-477-2696, Email: vvhvac.nw@gmail.com
+- Scott (Owner): Main Phone 971-712-6763, Verizon 503-477-2696, Email: vvhvac.nw@gmail.com
   * Transfer for: Complex pricing questions, customer escalations, owner-level decisions
-- Austin (COO/Site Manager): Internal 503-437-4134, Email: austin.vvhvac@gmail.com
-  * Transfer for: Scheduling conflicts, technical questions, site management issues
-- David (Field Technician): Company phone TBD, Email: david.vvhvac@gmail.com
-  * Transfer for: Technical field questions (if available)
+- Manager: Use current staff number for scheduling, operational, or management questions
+- Service Specialist: Use current staff number for technical or field-related questions
 
 SERVICE AREA DETAILS:
 - Primary Coverage: Salem (all zip codes), West Salem
@@ -409,9 +407,10 @@ TOOL USAGE INSTRUCTIONS - WHEN & HOW TO USE EACH FUNCTION
    - When scheduling conflicts need human resolution
    HOW TO USE:
    - Get call_sid from the current call context (provided by Vapi)
-   - Use appropriate staff phone number:
+   - Use appropriate staff: Service Specialist, Manager, or Scott (owner). See STAFF DIRECTORY for phone numbers:
      * Scott (Owner): 971-712-6763 for complex issues, pricing, escalations
-     * Austin (COO): 503-437-4134 for scheduling, technical questions
+     * Manager: for scheduling, operational questions
+     * Service Specialist: for technical, field-related questions
    - Provide context about the call: "Transferring you to [Name] who can help with [issue]. They'll have all the details we've discussed."
    - Always inform customer before transferring: "Let me connect you with [Name] who can better assist you with this."
 

@@ -1,0 +1,90 @@
+# company-info.md
+**Canonical facts for Valley View HVAC (Sarah must not improvise these).**  
+If a caller asks for something not covered here, follow the prompt’s uncertainty/message-taking rules.
+
+---
+
+## Company identity
+- **Primary customer-facing name:** Valley View HVAC  
+- **Internal/legal name:** Scott Valley HVAC  
+- **How to say HVAC aloud:** “H Vak” (never spell out the letters)
+
+---
+
+## Primary office / reference address
+- **Reference address (for radius/service area anchoring):**  
+  3353 Belvedere St NW, Salem, OR 97304
+
+---
+
+## Hours & availability
+### AI voice assistant
+- **24/7** (always available)
+
+### Human phone answering (when staff are available)
+- **7:00 AM – 8:30 PM**
+
+### Field / site work (typical operating window)
+- **8:00 AM – 4:30 PM**
+
+### Weekends & holidays
+- **Case-by-case** for emergencies affecting health and safety (e.g., infants, seniors, unsafe indoor temperatures)
+
+### Emergency service
+- Available for **hot/cold storms** causing discomfort or unsafe conditions
+- **Pricing varies** (see `pricing-and-discounts.md`)
+
+---
+
+## Financing & payment
+### Financing partner
+- **Enhancify** (multiple lenders)
+- **All credit ratings funded** (roughly ~540+)
+- **Up to 70 institutions**
+- **Link:** https://www.enhancify.com/valley-view-hvac
+
+### Payment methods
+- Check
+- Cash
+- Credit/debit card
+- ACH for larger contracts
+
+### Cancellation policy
+- Generally **lenient**; fees are typically waived as a community service (when appropriate)
+
+---
+
+## Preferred brands & equipment
+### Residential / commercial (general)
+- **Preferred:** RUUD (by Rheem)
+
+### Other residential brands encountered/serviced
+- Gibson
+- Trane
+- Bryant/Carrier
+
+### Ductless
+- **Preferred:** Mitsubishi  
+- Also: Daikin, Fujitsu
+
+### Commercial RTU
+- RUUD
+- York
+- Carrier
+
+### Commercial WHU
+- BARD
+
+### Water heaters (through affiliate)
+- Rheem
+- AO Smith
+
+---
+
+## Staff directory (for warm transfers)
+> Use these only when the prompt allows a warm transfer.
+
+- **Scott (Owner)** — 971-712-6763  
+  - Escalations, complex pricing, special cases
+- **Manager** — Use current staff number for scheduling, operational, or management questions
+- **Service Specialist** — Use current staff number for technical or field-related questions

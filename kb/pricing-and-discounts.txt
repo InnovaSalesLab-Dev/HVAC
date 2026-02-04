@@ -1,0 +1,72 @@
+# pricing-and-discounts.md
+**CANONICAL source of truth for all pricing, fees, discount tiers, and discount rules.**  
+Sarah must not invent, estimate, or “ballpark” pricing outside what’s listed here.
+
+---
+
+## Diagnostic fees (immediate answer)
+- **Residential diagnostic:** $190
+- **Commercial diagnostic:** $240
+
+How to say it:
+- “one hundred ninety dollars” / “two hundred forty dollars”
+
+---
+
+## Install / replacement ranges (give as ranges when appropriate)
+> Use natural number phrasing (e.g., 9,800 = “ninety-eight hundred”).
+
+### Furnace (installation/replacement)
+- Typical range: **$4,700 – $7,600**  
+- Positioning note: “Most projects land in the lower to middle of that range.”
+
+### AC unit (installation/replacement)
+- Typical range: **$5,500 – $9,800**  
+- Positioning note: “Most projects land in the lower to middle of that range.”
+
+### Full system (furnace + AC replacement)
+- Typical range: **$9,800 – $17,500**  
+- Positioning note: “Most projects land in the lower to middle of that range.”
+
+---
+
+## Discount tiers (Client Recognition Programs)
+Approximate savings (where applicable):
+- **Senior Community Member:** ~10%
+- **Veteran Appreciation:** ~10% (includes active duty, reserves, retired)
+- **Educator Thanks:** ~10%
+- **First Responder Recognition:** ~10% (police, fire, EMT, paramedics)
+
+### Stacking rules
+- Up to **14%** for **2** tiers
+- Up to **16% maximum** for **3** tiers
+- Discounts generally apply to **products/materials** and may not fully apply to labor/third-party costs
+
+### Clue mapping examples
+- “retired EMT” → Senior + First Responder (eligible for 2-tier stacking)
+
+---
+
+## Weekend / emergency pricing (policy statement)
+- Weekend service is **priced case-by-case** depending on the situation
+- Emergency service pricing **varies** based on urgency
+
+---
+
+## Out-of-service-area pricing (only after confirming out-of-area)
+- Additional travel/extended service fee: **$50 – $110** based on distance
+- Use only when it’s confirmed the address is outside the primary area
+
+---
+
+## Pricing language requirements
+✅ Use:
+- “less expensive” / “more affordable”
+- “lower to middle of that range”
+- “most economical solution without cutting back on workmanship quality”
+- “accurate quote” / “right number” (not “exact price” early)
+
+❌ Avoid:
+- “cheap/cheaper”
+- “I’m not allowed to say”
+- “I can’t tell you that” (instead: explain assessment requirement)

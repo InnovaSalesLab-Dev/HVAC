@@ -1,0 +1,45 @@
+# services-and-capabilities.md
+**Lookup-only reference for what Valley View HVAC does, doesn’t do, and typical visit types.**
+
+---
+
+## Service types & capabilities
+### Residential
+- Whole home ducted systems
+- Split home ducted systems
+- Ductless systems
+
+### Commercial
+- Wall-hung packaged units
+- Roof-mounted packaged units
+- Air-controlled systems
+
+---
+
+## Not serviced
+Valley View HVAC **does not** service:
+- Radiant systems
+- Geothermal systems
+- Hydro/steam systems
+- Boiler services
+
+### Related work (special handling)
+- Valley View HVAC **can** fit ducted/ductless systems and **abandon/sub out boiler removal** (case-by-case)
+
+---
+
+## Appointment types & typical durations
+> These are typical ranges; actual duration depends on scope and findings.
+
+### Diagnostic
+- On-site diagnostic: **20–30 minutes** (scheduled as **1 hour** block)
+
+### Proposal / estimate
+- **20–50 minutes** (varies by project scope)
+
+### Repair
+- **15 minutes to 6.5+ hours** (post-diagnosis)
+
+### Installation
+- **2.5–4 hours** (simple)  
+- **2–3 full days** (complex)

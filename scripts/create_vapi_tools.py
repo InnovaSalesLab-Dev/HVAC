@@ -211,7 +211,7 @@ def get_tool_definitions(server_url: str):
         {
             "type": "apiRequest",
             "name": "initiateWarmTransfer",
-            "description": "Transfer call to human staff member",
+            "description": "Transfer call to human staff member. Use appropriate staff: Service Specialist, Manager, or Scott (owner). See prompt for phone numbers and when to use each.",
             "url": f"{server_url}/functions/initiate-warm-transfer",
             "method": "POST",
             "body": {
