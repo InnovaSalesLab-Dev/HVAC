@@ -167,14 +167,11 @@ async def ghl_webhook(
         logger.info(f"Received GHL webhook: {event_type} for contact {contact_id}")
         
         # Handle different event types
-        # CRITICAL: Only handle contact.created for outbound calls
-        # contact.updated should NOT trigger outbound calls (prevents duplicates when contact is updated)
-        if event_type == "contact.created":
+        # Process both contact.created and contact.updated for outbound calls.
+        # When the same person resubmits the form, GHL updates the contact (contact.updated).
+        # handle_new_lead enforces "outbound" tag and vapi_called so we don't double-call.
+        if event_type in ("contact.created", "contact.updated"):
             await handle_new_lead(contact_id, body)  # Pass full body to access contact data if available
-        elif event_type == "contact.updated":
-            # Skip contact.updated - only process new contacts, not updates
-            # This prevents duplicate calls when contacts are updated after creation
-            logger.info(f"📋 Skipping contact.updated event for {contact_id} - only processing contact.created for outbound calls")
         elif event_type == "appointment.created":
             await handle_appointment_created(contact_id, data)
         elif event_type == "form.submitted":
@@ -206,9 +203,29 @@ async def handle_new_lead(contact_id: Optional[str], webhook_body: Dict[str, Any
         # CRITICAL: First, extract phone number BEFORE acquiring locks
         # This allows us to acquire the phone_call_lock FIRST (outermost lock)
         # to prevent multiple contacts with same phone from all proceeding
-        
-        # Try to get phone from webhook payload first (faster, no API call)
-        webhook_phone = webhook_body.get("phone") or webhook_body.get("phoneNumber") or webhook_body.get("phone_number")
+        #
+        # GHL workflow custom data often sends phone inside customData or data, not top-level.
+        # Check top-level first, then customData, then data (and data.contact) so we use
+        # the form-submitted number and avoid stale contact record.
+        def _get_phone_from_dict(d: Optional[Dict[str, Any]]) -> Optional[str]:
+            if not d or not isinstance(d, dict):
+                return None
+            raw = (
+                d.get("phone") or d.get("phoneNumber") or d.get("phone_number")
+                or d.get("Phone") or d.get("PhoneNumber")
+            )
+            return (raw and isinstance(raw, str) and raw.strip()) or None
+
+        custom_data = webhook_body.get("customData")
+        data = webhook_body.get("data")
+        data_contact = data.get("contact") if isinstance(data, dict) else None
+
+        webhook_phone = (
+            _get_phone_from_dict(webhook_body)
+            or _get_phone_from_dict(custom_data)
+            or _get_phone_from_dict(data)
+            or _get_phone_from_dict(data_contact)
+        )
         phone = webhook_phone
         
         # If not in webhook, we'll need to fetch contact, but do it AFTER acquiring phone lock
@@ -603,38 +620,60 @@ async def check_call_and_send_sms_fallback(call_id: str, contact_id: str, phone:
         
         logger.info(f"📞 Call {call_id} status: {call_status}, duration: {call_duration}s, endedReason: {ended_reason}")
         
-        # Determine if call was not picked up
+        # Determine if call was not picked up (Vapi API endedReason values)
         # CRITICAL: Only send SMS if call was clearly NOT answered
         # Do NOT send SMS if call was answered (even if short duration)
-        
-        # Statuses that indicate call wasn't answered
+        #
+        # Vapi endedReason for unanswered: customer-did-not-answer, customer-busy, voicemail,
+        # machine-detected, pipeline-error-*, twilio-failed-to-connect-call (call never reached customer)
+        UNANSWERED_ENDED_REASONS = [
+            "customer-did-not-answer",   # no answer (rang out)
+            "customer-busy",             # declined/busy
+            "voicemail",                  # voicemail detected
+            "machine-detected",           # voicemail/machine
+            "customer-did-not-give-microphone-permission",
+            "twilio-failed-to-connect-call",  # Twilio couldn't connect; still send SMS fallback
+            "no-answer",                  # legacy
+            "busy", "failed", "canceled",
+        ]
+
+        def _is_unanswered_reason(reason: str) -> bool:
+            if not reason:
+                return False
+            if reason in UNANSWERED_ENDED_REASONS:
+                return True
+            if reason.startswith("pipeline-error-"):
+                return True
+            return False
+
+        # Status values that indicate call wasn't answered
         unanswered_statuses = ["failed", "no-answer", "busy", "canceled", "voicemail"]
-        
-        # Check if call was answered (opposite of not answered)
-        # If status is "ended" with duration > 0 and endedReason is not in unanswered list, it was answered
+
+        # Call was answered: ended, had meaningful duration, and reason is not an unanswered reason
         call_was_answered = (
-            call_status == "ended" and 
-            call_duration > 0 and 
-            ended_reason not in ["no-answer", "voicemail", "busy", "failed", "customer-busy"] and
-            call_duration >= 5  # If call lasted 5+ seconds, it was likely answered
+            call_status == "ended"
+            and call_duration > 0
+            and not _is_unanswered_reason(ended_reason)
+            and call_duration >= 5  # 5+ seconds likely answered
         )
-        
-        # Check if call was not answered based on:
-        # 1. Status indicates no answer (failed, no-answer, busy, canceled, voicemail)
-        # 2. Call ended with specific "not answered" reasons
-        # 3. Call ended very quickly (< 5 seconds) AND with unanswered reason
-        # 4. Went to voicemail
+
+        # Call was not answered: status or endedReason indicates no answer / failed / voicemail
         call_not_answered = (
-            call_status in unanswered_statuses or
-            ended_reason in ["no-answer", "voicemail", "busy", "failed", "customer-busy"] or
-            "voicemail" in call_status or
-            (call_status == "ended" and call_duration < 5 and ended_reason in ["no-answer", "voicemail", "busy", "failed", "customer-busy"])
+            call_status == "failed"
+            or call_status in unanswered_statuses
+            or _is_unanswered_reason(ended_reason)
+            or "voicemail" in call_status
+            or (
+                call_status == "ended"
+                and call_duration < 5
+                and _is_unanswered_reason(ended_reason)
+            )
         )
-        
+
         # CRITICAL: If call was answered, do NOT send SMS
         # Clean up the checking set before returning
         if call_was_answered:
-            logger.info(f"📞 Call {call_id} was answered (status: {call_status}, duration: {call_duration}s, reason: {ended_reason}), skipping SMS fallback")
+            logger.info(f"📞 Call {call_id} was answered (status: {call_status}, duration: {call_duration}s, reason: {ended_reason}). Skipping SMS fallback.")
             # Clean up checking set
             async with _phone_sms_checking_lock:
                 if phone_normalized and phone_normalized in _phone_sms_checking:
@@ -644,7 +683,7 @@ async def check_call_and_send_sms_fallback(call_id: str, contact_id: str, phone:
             return
         
         if call_not_answered:
-            logger.info(f"📞 Call {call_id} was not answered (status: {call_status}, duration: {call_duration}s), checking SMS fallback eligibility")
+            logger.info(f"📞 Call {call_id} was not answered (reason: {ended_reason}). Sending SMS fallback.")
             
             # CRITICAL: Re-acquire phone lock and verify this call_id is still the one checking
             # This ensures only ONE SMS is sent per phone number, even if multiple contacts share it
