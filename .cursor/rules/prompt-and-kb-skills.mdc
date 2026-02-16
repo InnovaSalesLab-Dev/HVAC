@@ -1,0 +1,14 @@
+---
+description: When editing system prompts or knowledge base (KB) content, apply the Prompt Engineering Skills so prompts stay minimal, scalable, and effective.
+globs: docs/**/*.txt, docs/**/*.md, kb/**/*.txt, kb/**/*.md, skills/**/*.md
+---
+
+# Prompt and KB: Use Prompt Engineering Skills
+
+When you edit **system prompts** (e.g. `docs/inbound_system_prompt_2.txt`, `docs/outbound_systemprompt_2.txt`) or **knowledge base** files under `kb/`, always use the guidelines in **skills/PromptEngineeringSkills.md**.
+
+1. **Read** `skills/PromptEngineeringSkills.md` before making prompt or KB changes.
+2. **Apply** its rules: minimal prompt (~800 tokens max), critical rules first, move long procedures/FAQs into KB, voice-optimized structure (Identity, Style, Response Guidelines, Tool Use, Error Handling, Task), inbound vs outbound opening patterns.
+3. **Keep** prompts short and non-redundant; put reference material in KB and reference it from the prompt rather than inlining.
+
+This project’s prompts and KB drive the Vapi voice agent; consistency with the skills doc keeps behavior predictable and maintainable.

@@ -5,19 +5,60 @@ from src.utils.errors import APIError
 from src.utils.logging import logger
 from src.utils.ghl_fields import build_custom_fields_array
 from datetime import datetime, timedelta
+import threading
+
+# In-memory dedup: catches parallel tool calls arriving within seconds of each other.
+# Key = (contact_id, appointment_id, method), Value = timestamp of last successful send.
+_recent_sends: dict[tuple, datetime] = {}
+_recent_sends_lock = threading.Lock()
+_DEDUP_WINDOW_SECONDS = 30
+
+
+def _check_in_memory_dedup(contact_id: str, appointment_id: str | None, method: str) -> bool:
+    """Return True if this is a duplicate (already sent within the dedup window)."""
+    key = (contact_id, appointment_id or "", method)
+    now = datetime.now()
+    with _recent_sends_lock:
+        # Clean up old entries
+        stale = [k for k, v in _recent_sends.items() if (now - v).total_seconds() > 120]
+        for k in stale:
+            del _recent_sends[k]
+        # Check for recent send
+        if key in _recent_sends:
+            elapsed = (now - _recent_sends[key]).total_seconds()
+            if elapsed < _DEDUP_WINDOW_SECONDS:
+                return True
+    return False
+
+
+def _mark_sent(contact_id: str, appointment_id: str | None, method: str):
+    """Record that a send happened for dedup purposes."""
+    key = (contact_id, appointment_id or "", method)
+    with _recent_sends_lock:
+        _recent_sends[key] = datetime.now()
 
 
 async def send_confirmation(request: SendConfirmationRequest) -> SendConfirmationResponse:
     """
     Send SMS or email confirmation to customer.
     Checks SMS consent before sending SMS.
-    Prevents duplicate SMS messages within the same conversation.
+    Prevents duplicate SMS messages via in-memory dedup (parallel calls)
+    and GHL custom field dedup (cross-conversation).
     """
     ghl = GHLClient()
     twilio = TwilioService()
     
     try:
         logger.info(f"📧 sendConfirmation called: contact_id={request.contact_id}, appointment_id={request.appointment_id}, method={request.method}")
+        
+        # IN-MEMORY DEDUP: catch parallel tool calls from the same model turn
+        if _check_in_memory_dedup(request.contact_id, request.appointment_id, request.method):
+            logger.info(f"✅ In-memory dedup: duplicate sendConfirmation blocked (same contact+appointment within {_DEDUP_WINDOW_SECONDS}s)")
+            return SendConfirmationResponse(
+                success=True,
+                method=request.method,
+                message_id="dedup_blocked"
+            )
         
         # Get contact to check SMS consent and deduplication flags
         contact = await ghl.get_contact(contact_id=request.contact_id)
@@ -127,7 +168,12 @@ async def send_confirmation(request: SendConfirmationRequest) -> SendConfirmatio
             sms_consent = True
             logger.info(f"📱 SMS consent not set, defaulting to allow (opt-out model)")
         
-        phone = contact.get("phone") or contact.get("phoneNumber", "")
+        # Use phone override if provided (e.g. "send to my wife's number"), otherwise use contact's phone
+        if request.phone:
+            phone = request.phone
+            logger.info(f"📞 Using override phone number: {phone}")
+        else:
+            phone = contact.get("phone") or contact.get("phoneNumber", "")
         
         if not phone:
             logger.error(f"❌ No phone number found for contact {request.contact_id}")
@@ -148,9 +194,44 @@ async def send_confirmation(request: SendConfirmationRequest) -> SendConfirmatio
                     message_id=None
                 )
             
-            # Send SMS via Twilio
-            default_message = "Your appointment has been confirmed. We'll see you soon!"
-            message = request.message or default_message
+            # Build SMS message: use model-provided message, or auto-format from appointment details
+            if request.message:
+                message = request.message
+            else:
+                first_name = contact.get("firstName", "")
+                appt_details = ""
+                if request.appointment_id:
+                    try:
+                        appts = await ghl.get_contact_appointments(request.contact_id)
+                        appt_data = next((a for a in appts if a.get("id") == request.appointment_id), None)
+                        if appt_data:
+                            start = appt_data.get("startTime", "") or appt_data.get("start", "")
+                            title = appt_data.get("title", "Service")
+                            address = appt_data.get("address", "") or appt_data.get("location", "")
+                            if start:
+                                try:
+                                    dt = datetime.fromisoformat(start.replace("Z", "+00:00"))
+                                    date_str = dt.strftime("%A, %B %d, %Y")
+                                    time_str = dt.strftime("%I:%M %p").lstrip("0")
+                                except (ValueError, AttributeError):
+                                    date_str = start
+                                    time_str = ""
+                                appt_details = f"\n\nDate: {date_str}"
+                                if time_str:
+                                    appt_details += f"\nTime: {time_str}"
+                                if title:
+                                    appt_details += f"\nService: {title}"
+                                if address:
+                                    appt_details += f"\nAddress: {address}"
+                    except Exception as appt_err:
+                        logger.warning(f"⚠️ Could not fetch appointment details for SMS: {appt_err}")
+
+                greeting = f"Hi {first_name},\n\n" if first_name else ""
+                message = (
+                    f"{greeting}Your appointment with Valley View HVAC is confirmed.{appt_details}"
+                    f"\n\nIf you need to reschedule or have questions, call us at (971) 366-2499."
+                    f"\n\n— Valley View HVAC"
+                )
             
             logger.info(f"📤 Sending SMS to {phone}: {message[:50]}...")
             
@@ -159,6 +240,9 @@ async def send_confirmation(request: SendConfirmationRequest) -> SendConfirmatio
                 result = twilio.send_sms(to=phone, message=message)
                 message_sid = result.get("message_sid")
                 logger.info(f"✅ SMS sent successfully via Twilio: {message_sid}")
+                
+                # Mark in-memory dedup so parallel calls are blocked instantly
+                _mark_sent(request.contact_id, request.appointment_id, request.method)
                 
                 # Mark confirmation as sent to prevent duplicates
                 update_fields = {

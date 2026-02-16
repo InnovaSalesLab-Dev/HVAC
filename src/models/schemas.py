@@ -123,6 +123,7 @@ class SendConfirmationRequest(BaseModel):
     appointment_id: Optional[str] = None
     message: Optional[str] = None
     method: str = "sms"  # sms or email
+    phone: Optional[str] = None  # Override: send to this number instead of contact's number
 
 
 class SendConfirmationResponse(BaseModel):
