@@ -55,6 +55,18 @@
       "deps": [],
       "state": "active",
       "notes": "Phone, email, ZIP code validation"
+    },
+    "sms_email_confirmations": {
+      "flow": "Vapi AI calls POST /functions/send-confirmation with contact_id, method (sms|email), optional appointment_id and message. Backend: src/functions/send_confirmation.py. SMS is sent via Twilio (src/integrations/twilio/client.py). Email is NOT sent by backend — only a GHL timeline note is logged; actual confirmation emails are sent by GHL workflows.",
+      "sms_flow": "Request hits send_confirmation() -> consent/dedup checks -> message = request.message or default_message -> twilio.send_sms(to=phone, message=message). The detailed SMS text is built by the AI from the prompt template and passed in request.message.",
+      "email_flow": "Backend does not send email. For method=email we only add_timeline_note. Real appointment confirmation emails are sent by GHL automation when appointment is created; template lives in GHL workflow.",
+      "templates": {
+        "sms_detailed": "In prompt only: docs/inbound_system_prompt_2.txt (SMS CONFIRMATION MESSAGE) and docs/outbound_systemprompt_2.txt. AI fills date/time/service/address and passes as sendConfirmation message parameter. No server-side template.",
+        "sms_fallback": "Outbound no-answer SMS is built in src/webhooks/ghl.py (check_call_and_send_sms_fallback), hardcoded string, not appointment confirmation.",
+        "sms_default": "In code: src/functions/send_confirmation.py default_message = 'Your appointment has been confirmed. We'll see you soon!' used when request.message is empty.",
+        "email_reference": "docs/email_confirmation_template.txt — copy into GHL workflow; backend does not send email."
+      },
+      "files": ["src/functions/send_confirmation.py", "src/main.py", "src/integrations/twilio/client.py", "src/webhooks/ghl.py"]
     }
   },
   "debt": [],

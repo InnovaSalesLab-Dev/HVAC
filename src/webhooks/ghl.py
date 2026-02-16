@@ -339,27 +339,40 @@ async def handle_new_lead(contact_id: Optional[str], webhook_body: Dict[str, Any
                     logger.warning(f"⚠️  Could not check phone number for existing calls: {phone_check_error}")
                     # Continue anyway - locks should still prevent duplicates
                 
-                # CRITICAL: Check if contact has "outbound" tag - only trigger calls for outbound leads
-                # Inbound callers should NOT receive outbound calls
-                contact_tags = contact.get("tags", [])
+                # CRITICAL: Inbound callers should NEVER receive outbound calls.
+                # Webhook payload often does NOT include customFields (lead_source); we must use
+                # the contact record from GHL API so lead_source and tags are authoritative.
+                contact_for_decision = contact
+                if not contact.get("customFields") or (isinstance(contact.get("customFields"), list) and len(contact.get("customFields", [])) == 0):
+                    contact_response = await ghl.get_contact(contact_id=contact_id)
+                    if contact_response:
+                        contact_for_decision = contact_response.get("contact", contact_response) if isinstance(contact_response, dict) else contact_response
+                        logger.info(f"📋 Fetched contact from API for lead_source/tags check (webhook had no customFields)")
+                custom_fields = await custom_fields_to_dict(contact_for_decision.get("customFields"))
+                lead_source = (
+                    custom_fields.get("lead_source") or
+                    custom_fields.get("contact.lead_source") or
+                    contact.get("leadSource") or
+                    contact.get("lead_source") or
+                    ""
+                )
+                lead_source_lower = str(lead_source).lower() if lead_source else ""
+                contact_tags = contact_for_decision.get("tags", [])
                 if isinstance(contact_tags, str):
-                    # If tags is a string, split by comma
                     contact_tags = [tag.strip() for tag in contact_tags.split(",") if tag.strip()]
                 elif not isinstance(contact_tags, list):
                     contact_tags = []
-                
-                # Normalize tags to lowercase for comparison
                 contact_tags_lower = [str(tag).lower().strip() for tag in contact_tags if tag]
-                
-                # Only proceed if contact has "outbound" tag
+                if lead_source_lower == "inbound" or "inbound" in contact_tags_lower:
+                    logger.info(f"📋 Contact {contact_id} is an inbound caller (lead_source={lead_source_lower}, tags={contact_tags}), skipping outbound call.")
+                    return
+                # Only proceed if contact has "outbound" tag (form/chat/ad leads)
                 if "outbound" not in contact_tags_lower:
-                    logger.info(f"📋 Contact {contact_id} does not have 'outbound' tag (tags: {contact_tags}), skipping outbound call. This is likely an inbound caller.")
+                    logger.info(f"📋 Contact {contact_id} does not have 'outbound' tag (tags: {contact_tags}), skipping outbound call.")
                     return
                 
                 # Check if THIS contact already called (prevent duplicate calls) - INSIDE BOTH LOCKS
-                # GHL customFields can be list or dict
-                custom_fields = await custom_fields_to_dict(contact.get("customFields"))
-                
+                # custom_fields already loaded above for lead_source check
                 # Check both formats: "vapi_called" and "contact.vapi_called"
                 # Also check for "calling" status to prevent race conditions
                 vapi_called = (

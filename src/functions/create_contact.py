@@ -52,10 +52,12 @@ async def create_contact(request: CreateContactRequest) -> CreateContactResponse
     if request.custom_fields:
         custom_fields_dict.update(request.custom_fields)
     
-    # CRITICAL: Set lead_source to "inbound" for contacts created via inbound calls
-    # This prevents them from receiving outbound lead SMS fallback messages
+    # CRITICAL: Set lead_source to "inbound" for contacts created via inbound calls.
+    # This prevents them from receiving outbound lead SMS fallback and outbound calls.
+    # Also add "inbound" tag in GHL so the contact is stored as inbound (not outbound).
     # Only set if not already provided (allows override if needed)
-    if "lead_source" not in custom_fields_dict and "contact.lead_source" not in custom_fields_dict:
+    set_inbound = "lead_source" not in custom_fields_dict and "contact.lead_source" not in custom_fields_dict
+    if set_inbound:
         custom_fields_dict["lead_source"] = "inbound"
         logger.info("📋 Setting lead_source to 'inbound' for contact created via inbound call")
     
@@ -127,6 +129,12 @@ async def create_contact(request: CreateContactRequest) -> CreateContactResponse
         logger.info(f"🔄 Updating existing contact: {contact_id}")
         await ghl.update_contact(contact_id, contact_data)
         is_new = False
+        if set_inbound and contact_id:
+            try:
+                await ghl.add_tags_to_contact(contact_id, ["inbound"])
+                logger.info("📋 Added 'inbound' tag to contact in GHL")
+            except Exception as tag_err:
+                logger.warning(f"⚠️ Could not add inbound tag: {tag_err}")
     else:
         # Create new contact
         logger.info(f"Creating new contact: {phone}")
@@ -140,6 +148,12 @@ async def create_contact(request: CreateContactRequest) -> CreateContactResponse
             if not contact_id:
                 logger.error(f"Failed to extract contact ID from response: {result}")
             is_new = True
+            if set_inbound and contact_id:
+                try:
+                    await ghl.add_tags_to_contact(contact_id, ["inbound"])
+                    logger.info("📋 Added 'inbound' tag to contact in GHL")
+                except Exception as tag_err:
+                    logger.warning(f"⚠️ Could not add inbound tag: {tag_err}")
         except Exception as e:
             # Handle duplicate contact error - GHL returns contact ID in error
             from src.utils.errors import GHLAPIError
@@ -219,6 +233,12 @@ async def create_contact(request: CreateContactRequest) -> CreateContactResponse
                         await ghl.update_contact(contact_id, contact_data)
                         logger.info(f"✅ Successfully updated duplicate contact: {contact_id}")
                         is_new = False
+                        if set_inbound:
+                            try:
+                                await ghl.add_tags_to_contact(contact_id, ["inbound"])
+                                logger.info("📋 Added 'inbound' tag to contact in GHL")
+                            except Exception as tag_err:
+                                logger.warning(f"⚠️ Could not add inbound tag: {tag_err}")
                     except Exception as update_err:
                         logger.error(f"❌ Failed to update duplicate contact {contact_id}: {update_err}")
                         raise e  # Re-raise original error if update fails

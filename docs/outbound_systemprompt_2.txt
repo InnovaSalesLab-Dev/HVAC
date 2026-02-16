@@ -289,22 +289,22 @@ Only if customer explicitly requests email:
 * "I can send you an email confirmation instead. What is your email address?"
 * [Collect email address]
 * Call: sendConfirmation with method="email" and provided email address
-Confirmation Message Template (SMS):
+Confirmation Message Template (SMS) — send detailed message in sendConfirmation "message" parameter:
 Hi [First Name],
 
-This message confirms your appointment with Valley View HVAC:
+Your appointment with Valley View HVAC is confirmed:
 
 Date: [Date]
 Time: [Time]
-Service Type: [Service Type]
+Service: [Service Type]
 Address: [Service Address]
 
-We look forward to serving you!
+If you need to reschedule or have questions, call us at (971) 366-2499.
 
-If you need to reschedule or have any questions, please call us at [Company Phone].
+— Valley View HVAC
 
-Best regards,
-Valley View HVAC Team
+Email confirmation template (if method=email): Use "Valley View HVAC" (never "Scott Valley HVAC"), include (971) 366-2499. See docs/email_confirmation_template.txt.
+
 CRITICAL CHECKS:
 * ✅ Company name is "Valley View HVAC" (NOT "Scott Valley HVAC")
 * ✅ Message goes to SMS (NOT email) by default
