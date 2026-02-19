@@ -1,6 +1,7 @@
 """
-Business hours utility for Scott Valley HVAC.
-Checks if current time is within business hours (8:00 AM - 4:30 PM, Monday-Friday, Pacific Time).
+Business hours utility for Valley View HVAC.
+Returns technician dispatch hours (8:00 AM - 4:30 PM, Monday-Friday, Pacific Time)
+and always clarifies that phone/call answering is available twenty-four seven.
 """
 from dataclasses import dataclass
 from datetime import datetime, time
@@ -93,66 +94,66 @@ def check_business_hours(reference_time: Optional[datetime] = None) -> Dict[str,
     if current_date_str in HOLIDAYS:
         return {
             "isBusinessHours": False,
-            "message": "We're closed today for a holiday. Our regular hours are Monday through Friday, 8:00 AM to 4:30 PM Pacific Time.",
+            "message": "Our technicians are off today for a holiday, but our team answers calls twenty-four seven. Technician dispatch resumes next business day at 8 AM Pacific.",
             "day": current_time.strftime("%A"),
             "timezone": "America/Los_Angeles",
             "currentTime": current_time_str,
             "currentDate": current_date_str,
             "currentYear": str(current_time.year),
-            "businessHoursToday": "Closed (Holiday)",
+            "businessHoursToday": "Technician dispatch closed (Holiday). Calls answered 24/7.",
         }
     
     # Check if it's a weekday
     if day_of_week not in WEEKDAY_HOURS:
         return {
             "isBusinessHours": False,
-            "message": "We're closed on weekends. Our business hours are Monday through Friday, 8:00 AM to 4:30 PM Pacific Time.",
+            "message": "Technicians are off on weekends, but our team answers calls twenty-four seven. Technician dispatch resumes Monday at 8 AM Pacific. Emergency service may be available case-by-case.",
             "day": current_time.strftime("%A"),
             "timezone": "America/Los_Angeles",
             "currentTime": current_time_str,
             "currentDate": current_date_str,
             "currentYear": str(current_time.year),
-            "businessHoursToday": "Closed (Weekend)",
+            "businessHoursToday": "Technician dispatch closed (Weekend). Calls answered 24/7.",
         }
     
     office_hours = WEEKDAY_HOURS[day_of_week]
     
     if office_hours.contains(current_time):
         end_display = office_hours.end.strftime("%I:%M %p").lstrip("0")
+        start_display = office_hours.start.strftime("%I:%M %p").lstrip("0")
         return {
             "isBusinessHours": True,
-            "message": f"We're open now until {end_display} Pacific Time today.",
+            "message": f"Technicians are available now until {end_display} Pacific Time. Our team answers calls twenty-four seven.",
             "day": current_time.strftime("%A"),
             "timezone": "America/Los_Angeles",
             "currentTime": current_time_str,
             "currentDate": current_date_str,
             "currentYear": str(current_time.year),
-            "businessHoursToday": f"{office_hours.start.strftime('%I:%M %p').lstrip('0')} - {end_display}",
+            "businessHoursToday": f"Technician dispatch {start_display} - {end_display}. Calls answered 24/7.",
         }
     
-    # Outside business hours
+    # Outside technician dispatch hours
     start_display = office_hours.start.strftime("%I:%M %p").lstrip("0")
     end_display = office_hours.end.strftime("%I:%M %p").lstrip("0")
     
-    # Determine if we're before or after hours
+    # Determine next technician dispatch window
     if current_time.time() < office_hours.start:
-        next_open = f"today at {start_display}"
+        next_dispatch = f"today at {start_display}"
     else:
-        # After hours - next open is tomorrow (or Monday if it's Friday)
         if day_of_week == 4:  # Friday
-            next_open = "Monday at 8:00 AM"
+            next_dispatch = "Monday at 8:00 AM"
         else:
-            next_open = f"tomorrow at {start_display}"
+            next_dispatch = f"tomorrow at {start_display}"
     
     return {
         "isBusinessHours": False,
-        "message": f"We're currently closed. Our hours today are {start_display} to {end_display} Pacific Time. We'll be open {next_open}.",
+        "message": f"Technician dispatch is currently closed (hours: {start_display} to {end_display} Pacific). Next dispatch window: {next_dispatch}. Our team answers calls twenty-four seven — you can always reach us.",
         "day": current_time.strftime("%A"),
         "timezone": "America/Los_Angeles",
         "currentTime": current_time_str,
         "currentDate": current_date_str,
         "currentYear": str(current_time.year),
-        "businessHoursToday": f"{start_display} - {end_display}",
+        "businessHoursToday": f"Technician dispatch {start_display} - {end_display}. Calls answered 24/7.",
     }
 
 

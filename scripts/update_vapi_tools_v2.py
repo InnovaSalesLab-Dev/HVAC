@@ -49,14 +49,14 @@ TOOL_UPDATES = [
                 {
                     "provider": "google",
                     "name": "company-info",
-                    "description": "Company identity (Valley View HVAC), office address, business hours, financing (Enhancify), payment methods, cancellation policy, preferred brands, staff directory for warm transfers.",
-                    "fileIds": ["6b602032-bb6b-4878-895f-f0b4b3b71dc6"]
+                    "description": "Company identity (Valley View HVAC), office address, phone answering hours (twenty-four seven), technician dispatch hours (8-4:30), financing (Enhancify), payment methods, cancellation policy, preferred brands, staff directory for warm transfers.",
+                    "fileIds": ["d882c52c-73ab-4022-ba56-fa2ff7dc0150"]
                 },
                 {
                     "provider": "google",
                     "name": "voice-style-and-templates",
-                    "description": "Time and number pronunciation rules, SMS confirmation message template, email confirmation template, real-person script, wrong-name correction script.",
-                    "fileIds": ["5c86a6f9-dc19-4825-b728-c2228b3d102f"]
+                    "description": "Time and number pronunciation rules, 24/7 pronunciation (twenty-four seven), team language rules (never say AI), SMS confirmation notes, real-person script, wrong-name correction script, phrasing variations.",
+                    "fileIds": ["1475453b-cf04-4b8c-967e-c45eb8300564"]
                 }
             ]
         }
@@ -110,7 +110,7 @@ TOOL_UPDATES = [
         "payload": {
             "function": {
                 "name": "checkBusinessHours",
-                "description": "Check if the business is currently open and get the current Pacific Time. MUST call before checkCalendarAvailability or answering open/closed questions.",
+                "description": "Get current Pacific Time date, day-of-week, and technician dispatch status. Use BEFORE checkCalendarAvailability for scheduling. This returns TECHNICIAN DISPATCH hours (8-4:30), NOT phone availability. Phone calls are answered twenty-four seven — do NOT use this tool to answer 'what are your hours?' questions.",
                 "parameters": {
                     "type": "object",
                     "properties": {},
@@ -204,7 +204,7 @@ TOOL_UPDATES = [
         "payload": {
             "function": {
                 "name": "sendConfirmation",
-                "description": "Send SMS or email confirmation after booking. Call exactly ONCE per booking. Include a detailed message with date, time, service, address, and phone (971) 366-2499. If caller asks to send to a different number, pass that number in the phone parameter.",
+                "description": "Send SMS or email confirmation after booking. Call exactly ONCE per booking. The backend formats the message automatically — do NOT pass a message body. If caller asks to send to a different number, pass that number in the phone parameter.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -215,8 +215,7 @@ TOOL_UPDATES = [
                             "enum": ["sms", "email"],
                             "description": "SMS (default) or email."
                         },
-                        "message": {"type": "string", "description": "Detailed confirmation message with date, time, service, address. See KB for template."},
-                        "phone": {"type": "string", "description": "Override phone number in E.164 (e.g. +15035551234). Use only when caller asks to send confirmation to a different number."}
+                        "phone": {"type": "string", "description": "Override phone number in E.164 (e.g. +15035551234). Use ONLY when caller asks to send confirmation to a different number (e.g. wife, spouse, alternate). Do NOT create a new contact — just pass the number here."}
                     },
                     "required": ["contact_id", "method"]
                 }
